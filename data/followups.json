@@ -1,5 +1,32 @@
 [
   {
+    "id": "BAIMAI-CARE-8897",
+    "createdAt": "2026-09-24T02:44:24.099Z",
+    "studentId": "STUDENT-920",
+    "name": "น้องฟ้าใส (ม.3)",
+    "grade": "มัธยมศึกษาปีที่ 3 (ม.3)",
+    "school": "รร.ขอนแก่นวิทยายน",
+    "faculty": "มัธยมศึกษาปีที่ 3 (ม.3)",
+    "contact": "081-999-8877",
+    "email": "",
+    "topic": "ความกังวลเรื่องการสอบเข้า ม.4",
+    "preferredTime": "หลังเลิกเรียน 17:00 น.",
+    "score9Q": 8,
+    "score8Q": 1,
+    "severity9Q": "mild",
+    "severity8Q": "mild",
+    "answers2Q": {},
+    "status": "contacted",
+    "counselorNotes": [
+      {
+        "date": "2026-09-24T02:44:31.843Z",
+        "author": "พี่ใบไม้ Care",
+        "text": "โทรคุยกับน้องฟ้าใสแล้ว น้องสบายใจขึ้น นัดคุยกันอีกครั้งสัปดาห์หน้า"
+      }
+    ],
+    "lastFollowUp": "2026-09-24T02:44:31.843Z"
+  },
+  {
     "id": "BAIMAI-CARE-6836",
     "createdAt": "2026-09-24T02:32:37.854Z",
     "studentId": "STUDENT-864",
