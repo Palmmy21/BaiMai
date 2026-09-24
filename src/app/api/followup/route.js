@@ -331,3 +331,51 @@ export async function PATCH(request) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
+
+// DELETE: Delete a follow-up case (Requires Caregiver Authorization)
+export async function DELETE(request) {
+  try {
+    if (!isAuthorized(request)) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: "ไม่ได้รับอนุญาต: ต้องยืนยันรหัสผ่านพี่ ๆ ผู้ดูแล BaiMai ก่อนลบข้อมูล" 
+        }, 
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ success: false, message: "Missing ticket id" }, { status: 400 });
+    }
+
+    // 1. Delete from Supabase
+    if (supabase) {
+      try {
+        const { error: sbError } = await supabase.from("followups").delete().eq("id", id);
+        if (sbError) {
+          console.warn("Supabase delete warning:", sbError.message);
+        }
+      } catch (err) {
+        console.error("Supabase DELETE exception:", err);
+      }
+    }
+
+    // 2. Delete from local backup file
+    const list = readFollowUps();
+    const filteredList = list.filter((item) => item.id !== id);
+    writeFollowUps(filteredList);
+
+    return NextResponse.json({
+      success: true,
+      message: `ลบเคส ${id} เรียบร้อยแล้ว`,
+      deletedId: id,
+    });
+  } catch (error) {
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+  }
+}
+

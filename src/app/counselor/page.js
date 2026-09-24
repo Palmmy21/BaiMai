@@ -24,12 +24,14 @@ import {
   KeyRound,
   Eye,
   EyeOff,
-  LogOut
+  LogOut,
+  Trash2
 } from "lucide-react";
 
 export default function CounselorPortalPage() {
   const [followups, setFollowups] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   const [filterSeverity, setFilterSeverity] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -191,6 +193,39 @@ export default function CounselorPortalPage() {
       console.error("Error adding note:", e);
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const handleDeleteCase = async (id) => {
+    if (!window.confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลเคส "${id}"?\n(เมื่อลบแล้วข้อมูลจะถูกลบออกจากฐานข้อมูลอย่างถาวร)`)) {
+      return;
+    }
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/followup?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: {
+          "x-counselor-auth": authToken,
+        },
+      });
+      const data = await res.json();
+      if (res.status === 401) {
+        handleLogout();
+        return;
+      }
+      if (data.success) {
+        setFollowups((prev) => prev.filter((item) => item.id !== id));
+        if (selectedCase?.id === id) {
+          setSelectedCase(null);
+        }
+      } else {
+        alert(data.message || "เกิดข้อผิดพลาดในการลบข้อมูล");
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเพื่อลบข้อมูล");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -584,9 +619,21 @@ export default function CounselorPortalPage() {
                   )}
                 </div>
 
-                <div className="text-right text-[11px] text-[#888]">
-                  <p>บันทึกเมื่อ:</p>
-                  <p className="font-mono">{new Date(selectedCase.createdAt).toLocaleDateString("th-TH")}</p>
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <div className="text-right text-[11px] text-[#888]">
+                    <p>บันทึกเมื่อ:</p>
+                    <p className="font-mono">{new Date(selectedCase.createdAt).toLocaleDateString("th-TH")}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteCase(selectedCase.id)}
+                    disabled={deletingId === selectedCase.id}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-medium text-[#C53030] hover:bg-[#FFF5F5] border border-[#F3D1D8] transition-all cursor-pointer shadow-2xs active:scale-95 disabled:opacity-50"
+                    title="ลบข้อมูลเคสนี้ออกจากระบบ"
+                  >
+                    <Trash2 size={12} />
+                    <span>{deletingId === selectedCase.id ? "กำลังลบ..." : "ลบเคสนี้"}</span>
+                  </button>
                 </div>
               </div>
 
