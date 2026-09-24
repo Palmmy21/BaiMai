@@ -51,7 +51,7 @@ export default function RootLayout({ children }) {
               <span>•</span>
               <Link href="/assessment" className="hover:underline">เช็กใจตัวเอง (2Q/9Q/8Q)</Link>
               <span>•</span>
-              <Link href="/counselor" className="hover:underline text-[#245238] font-medium">ระบบดูแลนิสิต มมส. (สำหรับอาจารย์)</Link>
+              <Link href="/counselor" className="hover:underline text-[#245238] font-medium">ระบบดูแลน้อง ๆ (สำหรับพี่ ๆ ผู้ดูแล)</Link>
             </div>
           </div>
         </footer>

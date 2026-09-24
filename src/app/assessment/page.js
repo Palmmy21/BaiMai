@@ -23,28 +23,15 @@ import {
 } from "lucide-react";
 import { soundManager } from "@/utils/audio";
 
-const MSU_FACULTIES = [
-  "คณะวิทยาการสารสนเทศ",
-  "คณะแพทยศาสตร์",
-  "คณะพยาบาลศาสตร์",
-  "คณะเภสัชศาสตร์",
-  "คณะสาธารณสุขศาสตร์",
-  "คณะมนุษยศาสตร์และสังคมศาสตร์",
-  "คณะศึกษาศาสตร์",
-  "คณะการบัญชีและการจัดการ",
-  "คณะการท่องเที่ยวและการโรงแรม",
-  "คณะวิทยาศาสตร์",
-  "คณะเทคโนโลยี",
-  "คณะวิศวกรรมศาสตร์",
-  "คณะสถาปัตยกรรมศาสตร์ ผังเมืองและนฤมิตศิลป์",
-  "คณะสิ่งแวดล้อมและทรัพยากรศาสตร์",
-  "คณะศิลปกรรมศาสตร์และวัฒนธรรมศาสตร์",
-  "วิทยาลัยการเมืองการปกครอง",
-  "วิทยาลัยดุริยางคศิลป์",
-  "คณะนิติศาสตร์",
-  "โรงเรียนสาธิตมหาวิทยาลัยมหาสารคาม",
-  "อื่น ๆ / บุคคลทั่วไป"
+const GRADE_LEVELS = [
+  "มัธยมศึกษาปีที่ 1 (ม.1)",
+  "มัธยมศึกษาปีที่ 2 (ม.2)",
+  "มัธยมศึกษาปีที่ 3 (ม.3)",
+  "มัธยมศึกษาตอนปลาย (ม.4 - ม.6)",
+  "ประถมศึกษาตอนปลาย",
+  "อื่น ๆ"
 ];
+
 
 // ==============================================================
 // 1. แบบคัดกรองเบื้องต้น (2Q) - ภาษาเข้าใจง่าย อบอุ่น เป็นมิตร
@@ -157,14 +144,13 @@ export default function AssessmentPage() {
   const [index8Q, setIndex8Q] = useState(0);
   const [subQ3Open, setSubQ3Open] = useState(false);
 
-  // MSU Follow-up Sync State
-  const [msuFollowupOpen, setMsuFollowupOpen] = useState(false);
-  const [studentId, setStudentId] = useState("");
+  // BaiMai Care Follow-up Sync State (สำหรับน้อง ๆ มัธยม)
+  const [careFollowupOpen, setCareFollowupOpen] = useState(false);
   const [studentName, setStudentName] = useState("");
-  const [studentEmail, setStudentEmail] = useState("");
-  const [consultTopic, setConsultTopic] = useState("ขอรับคำปรึกษาความเครียด/สุขภาพใจ");
-  const [faculty, setFaculty] = useState(MSU_FACULTIES[0]);
+  const [gradeLevel, setGradeLevel] = useState(GRADE_LEVELS[0]);
+  const [school, setSchool] = useState("");
   const [contact, setContact] = useState("");
+  const [consultTopic, setConsultTopic] = useState("ความเครียดเรื่องเรียน / สุขภาพใจ");
   const [preferredTime, setPreferredTime] = useState("ช่วงหลังเลิกเรียน (16:30 - 19:00 น.)");
   const [consentGiven, setConsentGiven] = useState(false);
   const [submittingFollowup, setSubmittingFollowup] = useState(false);
@@ -180,25 +166,24 @@ export default function AssessmentPage() {
     setAnswers8Q({});
     setIndex8Q(0);
     setSubQ3Open(false);
-    setMsuFollowupOpen(false);
+    setCareFollowupOpen(false);
     setSubmittedTicket(null);
   };
 
-  // Submit follow-up care sync to university counselors
+  // Submit follow-up care sync to BaiMai Care mentors (พี่ ๆ ผู้ดูแล)
   const handleFollowupSubmit = async (e) => {
     e.preventDefault();
-    if (!studentId.trim() || !contact.trim() || !consentGiven) return;
+    if (!studentName.trim() || !contact.trim() || !consentGiven) return;
     setSubmittingFollowup(true);
     try {
       const res = await fetch("/api/followup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          studentId: studentId.trim(),
           name: studentName.trim(),
-          email: studentEmail.trim(),
+          grade: gradeLevel,
+          school: school.trim(),
           topic: consultTopic.trim(),
-          faculty,
           contact: contact.trim(),
           preferredTime,
           consent: consentGiven,
@@ -283,7 +268,7 @@ export default function AssessmentPage() {
         color: "bg-[#FDF7E5] border-[#F7E6B5] text-[#5C4D20]",
         desc: "คุณอาจมีความเหนื่อยล้าหรือเรื่องกวนใจสะสมอยู่ ลองหาเวลาพักผ่อน ระบายความรู้สึกออกมา หรือฝึกหายใจช้า ๆ ดูนะ",
         clinicalAdvice: "แนะนำการให้คำปรึกษาเบื้องต้น (Supportive Counseling) การจัดการอารมณ์ และสุขศึกษาการนอนหลับและการคลายเครียด",
-        actionPlan: "ควรได้รับการดูแลและติดตามประเมินซ้ำด้วยแบบ 9Q ภายใน 2 สัปดาห์ หากคะแนนยังไม่ลดลง ควรปรึกษานักจิตวิทยาหรืออาจารย์ที่ปรึกษา",
+        actionPlan: "ควรได้รับการดูแลและติดตามประเมินซ้ำด้วยแบบ 9Q ภายใน 2 สัปดาห์ หากคะแนนยังไม่ลดลง ควรพูดคุยกับพี่ ๆ ผู้ดูแล BaiMai Care หรือคุณครูแนะแนว",
         followUpTimeline: "นัดติดตามอาการซ้ำภายใน 2 สัปดาห์",
       };
     } else if (score <= 18) {
@@ -293,8 +278,8 @@ export default function AssessmentPage() {
         severity: "moderate",
         color: "bg-[#FAEBEE] border-[#F3D1D8] text-[#701E2D]",
         desc: "ความรู้สึกในใจกำลังส่งผลกระทบต่อการใช้ชีวิต คุณไม่จำเป็นต้องทนรับไว้คนเดียว การพูดคุยกับผู้เชี่ยวชาญจะช่วยให้เบาสบายขึ้นมากนะ",
-        clinicalAdvice: "จำเป็นต้องประเมินแบบ 8Q เพื่อสำรวจความปลอดภัยต่อตนเอง และควรได้รับคำปรึกษาเชิงลึกจากนักจิตวิทยา/อาจารย์ที่ปรึกษา หรือแพทย์ เพื่อพิจารณาการบำบัดรักษาทางจิตใจ",
-        actionPlan: "แนะนำติดต่อศูนย์สุขภาวะนิสิต มมส. หรือ รพ.สุทธาเวช เพื่อรับการดูแลและติดตามอาการอย่างใกล้ชิด",
+        clinicalAdvice: "จำเป็นต้องประเมินแบบ 8Q เพื่อสำรวจความปลอดภัยต่อตนเอง และควรได้รับคำปรึกษาเชิงลึกจากพี่ ๆ ผู้ดูแล BaiMai Care, คุณครูแนะแนว หรือจิตแพทย์เด็กและวัยรุ่น",
+        actionPlan: "แนะนำส่งต่อข้อมูลให้พี่ ๆ ผู้ดูแล BaiMai Care หรือพบคุณครูแนะแนว เพื่อรับการดูแลและติดตามอาการอย่างใกล้ชิด",
         followUpTimeline: "นัดติดตามอาการทุก 1 - 2 สัปดาห์",
       };
     } else {
@@ -304,8 +289,8 @@ export default function AssessmentPage() {
         severity: "severe",
         color: "bg-[#F5E6E8] border-[#EAA8B4] text-[#8C1D2F]",
         desc: "ใจของคุณกำลังเหนื่อยล้ามากจริง ๆ กอดใจตัวเองแน่น ๆ นะ มีคนที่พร้อมรับฟังและอยากอยู่เคียงข้างคุณเสมอ 🤍",
-        clinicalAdvice: "ต้องประเมินแบบ 8Q ทันที และจำเป็นต้องส่งต่อพบแพทย์/จิตแพทย์ โรงพยาบาล เพื่อรับการตรวจวินิจฉัยและวางแผนรักษาทางการแพทย์อย่างปลอดภัย",
-        actionPlan: "ประสานส่งต่อพบแพทย์ รพ.สุทธาเวช คณะแพทยศาสตร์ มมส. หรือโรงพยาบาลใกล้เคียงอย่างเร่งด่วน โดยมีผู้ดูแลใกล้ชิด",
+        clinicalAdvice: "ต้องประเมินแบบ 8Q ทันที และจำเป็นต้องส่งต่อพบแพทย์/จิตแพทย์เด็กและวัยรุ่น ณ โรงพยาบาลใกล้บ้าน เพื่อรับการดูแลรักษาอย่างปลอดภัย",
+        actionPlan: "ประสานส่งต่อพบแพทย์โรงพยาบาลใกล้บ้านอย่างเร่งด่วน โดยมีผู้ปกครองหรือคุณครูคอยดูแลอย่างใกล้ชิด",
         followUpTimeline: "ส่งต่อรับการรักษาทันที / ติดตามอาการใกล้ชิด",
       };
     }
@@ -364,7 +349,7 @@ export default function AssessmentPage() {
         color: "bg-[#FDF7E5] border-[#F7E6B5] text-[#5C4D20]",
         isUrgent: false,
         clinicalAdvice: "สร้างสัมพันธภาพ ให้กำลังใจ รับฟังด้วยความเข้าอกเข้าใจโดยไม่ตัดสิน เฝ้าระวังไม่ให้เกิดปัจจัยกระตุ้นความเครียด",
-        actionPlan: "แนะนำให้คนใกล้ชิด/อาจารย์ที่ปรึกษาช่วยรับฟังดูแล และติดตามประเมินซ้ำใน 1-2 สัปดาห์",
+        actionPlan: "แนะนำให้คนใกล้ชิด หรือพี่ ๆ ผู้ดูแล BaiMai Care ช่วยรับฟังดูแล และติดตามประเมินซ้ำใน 1-2 สัปดาห์",
       };
     } else if (score <= 16) {
       return {
@@ -374,7 +359,7 @@ export default function AssessmentPage() {
         color: "bg-[#FAEBEE] border-[#F3D1D8] text-[#701E2D]",
         isUrgent: true,
         clinicalAdvice: "ต้องเฝ้าระวังอย่างใกล้ชิด คัดกรองและเก็บสิ่งของที่อาจเกิดอันตรายรอบตัว ไม่ควรอยู่คนเดียวตามลำพัง",
-        actionPlan: "ประสานศูนย์สุขภาวะนิสิต มมส. หรืออาจารย์ที่ปรึกษาเพื่อจัดหาผู้ดูแล และนัดพบแพทย์/นักจิตวิทยาเพื่อวางแผนดูแลความปลอดภัยอย่างต่อเนื่อง",
+        actionPlan: "ประสานพี่ ๆ ผู้ดูแล BaiMai Care หรือคุณครูเพื่อช่วยดูแล และนัดพบแพทย์/นักจิตวิทยาเพื่อวางแผนดูแลความปลอดภัยอย่างต่อเนื่อง",
       };
     } else {
       return {
@@ -384,7 +369,7 @@ export default function AssessmentPage() {
         color: "bg-[#8C1D2F] border-[#6D1221] text-white",
         isUrgent: true,
         clinicalAdvice: "ภาวะฉุกเฉินทางสุขภาพจิต (Medical Emergency) ต้องได้รับการดูแลคุ้มครองความปลอดภัยทันที ห้ามปล่อยให้อยู่คนเดียวเด็ดขาด",
-        actionPlan: "นำส่งห้องฉุกเฉิน รพ.สุทธาเวช คณะแพทยศาสตร์ มมส. (โทร 043-021-021) หรือโทร 1669 / สายด่วน 1323 ทันทีตลอด 24 ชั่วโมง",
+        actionPlan: "ติดต่อสายด่วนสุขภาพจิต 1323 หรือสายด่วนวัยรุ่น 1663 ทันที หรือโทร 1669 / นำส่งโรงพยาบาลใกล้บ้านตลอด 24 ชั่วโมง โดยมีผู้ดูแลใกล้ชิด",
       };
     }
   };
@@ -911,21 +896,21 @@ export default function AssessmentPage() {
             )}
 
             {/* ==============================================================
-                MSU STUDENT CARE: USER DECISION & FOLLOW-UP SYNC
-                (อิงข้อแนะนำอาจารย์ มหาวิทยาลัยมหาสารคาม MSU)
+                BAIMAI CARE: USER DECISION & FOLLOW-UP SYNC
+                (สำหรับน้อง ๆ มัธยม และพี่ ๆ ผู้ดูแล BaiMai Care)
                ============================================================== */}
             <div className="bg-white/95 rounded-3xl p-6 sm:p-7 border border-[#B8DCC8] shadow-xs space-y-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1">
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#E2F2E9] text-[#1B432E]">
-                    <Building2 size={12} />
-                    <span>มหาวิทยาลัยมหาสารคาม (MSU Care Sync)</span>
+                    <Sparkles size={12} />
+                    <span>พี่ ๆ ผู้ดูแล BaiMai Care (BaiMai Mentors)</span>
                   </div>
                   <h3 className="text-base sm:text-lg font-bold text-[#333]">
-                    ช่องทางการเข้าถึงและซิงก์ข้อมูลดูแลต่อเนื่อง (มมส.)
+                    ให้พี่ ๆ ผู้ดูแลคอยรับฟังและติดตามดูแลใจ 🌱
                   </h3>
                   <p className="text-xs text-[#7A7A7A] leading-relaxed">
-                    คุณสามารถ <strong>ตัดสินใจได้ด้วยตนเอง</strong> ว่าต้องการซิงก์ผลประเมินเพื่อให้นักจิตวิทยา/อาจารย์ที่ปรึกษาจากศูนย์สุขภาวะนิสิต มมส. หรือ รพ.สุทธาเวช ติดต่อกลับเพื่อติดตามอาการหรือไม่
+                    น้อง ๆ สามารถ <strong>ตัดสินใจได้ด้วยตนเอง</strong> ว่าต้องการให้พี่ ๆ ผู้ดูแล BaiMai ติดต่อกลับเพื่อพูดคุย รับฟัง และติดตามถามไถ่อาการอย่างอบอุ่นหรือไม่
                   </p>
                 </div>
               </div>
@@ -937,11 +922,11 @@ export default function AssessmentPage() {
                 </div>
                 <div className="space-y-1 text-xs text-[#666]">
                   <p className="font-semibold text-[#333]">
-                    💡 ข้อชี้แจงข้อจำกัดและการเก็บข้อมูล (ตามข้อแนะนำอาจารย์ มมส.):
+                    💡 ข้อชี้แจงเกี่ยวกับการดูแลและความเป็นส่วนตัว:
                   </p>
                   <p className="leading-relaxed">
-                    • <strong>การระบายความรู้สึก (ปล่อยความรู้สึก):</strong> เป็น Zero-Data 100% สลายหายไปทันที ไม่มีการบันทึกใด ๆ<br />
-                    • <strong>การติดตามอาการสุขภาพจิต (Follow-up Care):</strong> จะจัดเก็บข้อมูล <u>เฉพาะเมื่อท่านยินยอม</u> โดยเก็บรหัสนิสิตและคะแนนประเมินลงในระบบ เพื่อให้อาจารย์ที่ปรึกษาและศูนย์สุขภาวะนิสิต มมส. สามารถนำไป <strong>ติดตามอาการซ้ำและบันทึกความคืบหน้าการดูแล</strong> ต่อไปได้อย่างปลอดภัย
+                    • <strong>การระบายความรู้สึก (ปล่อยความรู้สึก):</strong> เป็น Zero-Data 100% สลายหายไปทันที ไม่มีการบันทึกใด ๆ ทั้งสิ้น<br />
+                    • <strong>การติดตามดูแลใจ (Follow-up Care):</strong> จะบันทึกข้อมูล <u>เฉพาะเมื่อน้อง ๆ ยินยอมเท่านั้น</u> โดยเก็บชื่อเล่น/ระดับชั้นและคะแนนประเมิน เพื่อให้พี่ ๆ ผู้ดูแลสามารถนำไป <strong>ติดตามถามไถ่และคอยซัพพอร์ตใจน้อง ๆ</strong> ได้อย่างปลอดภัยและเป็นความลับ
                   </p>
                 </div>
               </div>
@@ -951,37 +936,37 @@ export default function AssessmentPage() {
                 <div className="p-5 rounded-2xl bg-[#E2F2E9] border border-[#B8DCC8] text-[#1B432E] space-y-3">
                   <div className="flex items-center gap-2 font-bold text-sm sm:text-base">
                     <CheckCircle2 size={20} className="text-[#2F6B4A]" />
-                    <span>ซิงก์ข้อมูลและบันทึกเพื่อการติดตามอาการเรียบร้อยแล้ว</span>
+                    <span>บันทึกข้อมูลเพื่อให้พี่ ๆ ผู้ดูแลติดต่อกลับเรียบร้อยแล้ว</span>
                   </div>
                   <p className="text-xs leading-relaxed text-[#2C6244]">
-                    รหัสเคสติดตามอาการของคุณคือ: <strong className="font-mono bg-white px-2 py-0.5 rounded border border-[#B8DCC8] text-sm">{submittedTicket}</strong>
-                    <br />อาจารย์ที่ปรึกษาและเจ้าหน้าที่ศูนย์สุขภาวะนิสิต กองกิจการนิสิต มมส. จะติดต่อกลับตามช่องทางที่คุณระบุอย่างเป็นความลับและปลอดภัย
+                    รหัสเคสดูแลใจของน้องคือ: <strong className="font-mono bg-white px-2 py-0.5 rounded border border-[#B8DCC8] text-sm">{submittedTicket}</strong>
+                    <br />พี่ ๆ ผู้ดูแล BaiMai Care จะติดต่อกลับตามช่องทางที่น้องระบุอย่างอบอุ่นและเป็นความลับที่สุดนะ 🤍
                   </p>
                   
-                  {/* MSU Contacts */}
+                  {/* Youth Hotlines */}
                   <div className="pt-2 border-t border-[#B8DCC8]/60 text-xs space-y-1">
-                    <p className="font-semibold text-[#1B432E]">ช่องทางติดต่อโดยตรงของมหาวิทยาลัยมหาสารคาม:</p>
-                    <p>• <strong>ศูนย์สุขภาวะนิสิต กองกิจการนิสิต มมส.</strong>: อาคารพัฒนานิสิต (โทร 043-754388 หรือสายตรง มมส.)</p>
-                    <p>• <strong>โรงพยาบาลสุทธาเวช คณะแพทยศาสตร์ มมส.</strong>: แผนกจิตเวช/ฉุกเฉิน (โทร 043-021-021)</p>
+                    <p className="font-semibold text-[#1B432E]">หากต้องการคุยกับผู้เชี่ยวชาญทันที สามารถโทรได้ที่:</p>
+                    <p>• <strong>สายด่วนสุขภาพวัยรุ่นและเยาวชน Lovecare</strong>: โทร 1663 (บริการฟรี ปรึกษาได้ทุกเรื่อง)</p>
+                    <p>• <strong>สายด่วนสุขภาพจิต กรมสุขภาพจิต</strong>: โทร 1323 (โทรฟรีตลอด 24 ชั่วโมง)</p>
                   </div>
                 </div>
-              ) : !msuFollowupOpen ? (
+              ) : !careFollowupOpen ? (
                 /* Choice Buttons (User Decisions) */
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  {/* Choice 1: Request MSU Follow-up */}
+                  {/* Choice 1: Request Mentor Follow-up */}
                   <button
-                    onClick={() => setMsuFollowupOpen(true)}
+                    onClick={() => setCareFollowupOpen(true)}
                     className="p-4 rounded-2xl border-2 border-[#B8DCC8] bg-[#F7FCF9] hover:bg-[#E2F2E9] text-left transition-all group cursor-pointer shadow-2xs"
                   >
                     <div className="flex items-center gap-2 text-xs font-bold text-[#1B432E]">
-                      <Hospital size={16} />
-                      <span>ขอรับการติดตามอาการจาก มมส. (แนะนำ)</span>
+                      <Heart size={16} className="text-[#2F6B4A]" />
+                      <span>ให้พี่ ๆ ผู้ดูแลติดต่อกลับ (แนะนำ)</span>
                     </div>
                     <p className="text-[11px] text-[#666] mt-1 leading-relaxed">
-                      ยินยอมให้ศูนย์สุขภาวะนิสิต มมส. หรือ รพ.สุทธาเวช ติดต่อกลับเพื่อคอยรับฟัง ให้คำปรึกษา และดูแลต่อเนื่อง
+                      ยินยอมให้พี่ ๆ ผู้ดูแล BaiMai คอยรับฟัง ให้คำแนะนำ ช่วยเหลือ และติดตามถามไถ่อาการอย่างเป็นกันเอง
                     </p>
                     <span className="inline-flex items-center gap-1 text-xs text-[#2F6B4A] font-medium mt-2 group-hover:translate-x-1 transition-transform">
-                      <span>กรอกข้อมูลเพื่อซิงก์ผล</span>
+                      <span>กรอกข้อมูลเพื่อพูดคุย</span>
                       <span>→</span>
                     </span>
                   </button>
@@ -998,30 +983,17 @@ export default function AssessmentPage() {
                   </div>
                 </div>
               ) : (
-                /* Form for MSU Student Follow-up Care */
+                /* Form for Middle School Student Follow-up Care */
                 <form onSubmit={handleFollowupSubmit} className="space-y-4 pt-1 animate-in fade-in duration-200">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <label className="text-xs font-medium text-[#444]">
-                        รหัสนิสิต มมส. <span className="text-[#E53E3E]">*</span>
+                        ชื่อ หรือ ชื่อเล่น <span className="text-[#E53E3E]">*</span>
                       </label>
                       <input
                         type="text"
                         required
-                        placeholder="เช่น 650112XXXXX"
-                        value={studentId}
-                        onChange={(e) => setStudentId(e.target.value)}
-                        className="w-full px-3.5 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs focus:outline-none focus:border-[#779988]"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium text-[#444]">
-                        ชื่อ หรือ ชื่อเล่น (ระบุหรือไม่ก็ได้)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="เช่น ใบไม้ หรือ ไม่ระบุชื่อ"
+                        placeholder="เช่น น้องใบไม้, น้องมิน"
                         value={studentName}
                         onChange={(e) => setStudentName(e.target.value)}
                         className="w-full px-3.5 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs focus:outline-none focus:border-[#779988]"
@@ -1030,17 +1002,30 @@ export default function AssessmentPage() {
 
                     <div className="space-y-1">
                       <label className="text-xs font-medium text-[#444]">
-                        คณะที่สังกัดใน มมส. <span className="text-[#E53E3E]">*</span>
+                        ระดับชั้น <span className="text-[#E53E3E]">*</span>
                       </label>
                       <select
-                        value={faculty}
-                        onChange={(e) => setFaculty(e.target.value)}
+                        value={gradeLevel}
+                        onChange={(e) => setGradeLevel(e.target.value)}
                         className="w-full px-3.5 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs text-[#333] focus:outline-none focus:border-[#779988]"
                       >
-                        {MSU_FACULTIES.map((fac, i) => (
-                          <option key={i} value={fac}>{fac}</option>
+                        {GRADE_LEVELS.map((g, i) => (
+                          <option key={i} value={g}>{g}</option>
                         ))}
                       </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-[#444]">
+                        โรงเรียน (ระบุหรือไม่ก็ได้)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="เช่น รร.สาธิตฯ, รร.ประจำจังหวัด"
+                        value={school}
+                        onChange={(e) => setSchool(e.target.value)}
+                        className="w-full px-3.5 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs focus:outline-none focus:border-[#779988]"
+                      />
                     </div>
 
                     <div className="space-y-1">
@@ -1050,33 +1035,20 @@ export default function AssessmentPage() {
                       <input
                         type="text"
                         required
-                        placeholder="เช่น 08X-XXX-XXXX หรือ Line: student_msu"
+                        placeholder="เช่น 08X-XXX-XXXX หรือ Line ID"
                         value={contact}
                         onChange={(e) => setContact(e.target.value)}
                         className="w-full px-3.5 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs focus:outline-none focus:border-[#779988]"
                       />
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="space-y-1 sm:col-span-2">
                       <label className="text-xs font-medium text-[#444]">
-                        อีเมลนิสิต (ทางเลือก)
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="เช่น 650112xxxxx@msu.ac.th"
-                        value={studentEmail}
-                        onChange={(e) => setStudentEmail(e.target.value)}
-                        className="w-full px-3.5 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs focus:outline-none focus:border-[#779988]"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium text-[#444]">
-                        เรื่องที่ต้องการปรึกษา
+                        เรื่องที่อยากคุยกับพี่ ๆ ผู้ดูแล
                       </label>
                       <input
                         type="text"
-                        placeholder="เช่น เรื่องเรียน, ความเครียด, สุขภาพจิต"
+                        placeholder="เช่น เรื่องเรียน, เรื่องเพื่อน, ความเครียด, รู้สึกหมดไฟ"
                         value={consultTopic}
                         onChange={(e) => setConsultTopic(e.target.value)}
                         className="w-full px-3.5 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs focus:outline-none focus:border-[#779988]"
@@ -1086,7 +1058,7 @@ export default function AssessmentPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs font-medium text-[#444]">
-                      ช่วงเวลาที่สะดวกให้เจ้าหน้าที่ติดต่อกลับ
+                      ช่วงเวลาที่สะดวกให้พี่ ๆ ติดต่อกลับ
                     </label>
                     <input
                       type="text"
@@ -1101,22 +1073,22 @@ export default function AssessmentPage() {
                   <div className="p-3.5 rounded-xl bg-[#FFFDF8] border border-[#E8DFC9] flex items-start gap-2.5">
                     <input
                       type="checkbox"
-                      id="msu-consent"
+                      id="baimai-care-consent"
                       required
                       checked={consentGiven}
                       onChange={(e) => setConsentGiven(e.target.checked)}
                       className="mt-0.5 accent-[#2F6B4A]"
                     />
-                    <label htmlFor="msu-consent" className="text-xs text-[#555] leading-relaxed cursor-pointer select-none">
-                      ข้าพเจ้ายินยอมให้ศูนย์สุขภาวะนิสิต กองกิจการนิสิต มหาวิทยาลัยมหาสารคาม และ/หรือ โรงพยาบาลสุทธาเวช คณะแพทยศาสตร์ บันทึกผลประเมินและติดต่อกลับเพื่อ <strong>ติดตามอาการและให้การดูแลอย่างต่อเนื่อง</strong>
+                    <label htmlFor="baimai-care-consent" className="text-xs text-[#555] leading-relaxed cursor-pointer select-none">
+                      ยินยอมให้ <strong>พี่ ๆ ผู้ดูแล BaiMai Care</strong> บันทึกผลประเมินและติดต่อกลับตามช่องทางที่ระบุ เพื่อคอยรับฟัง ให้คำแนะนำ และติดตามถามไถ่สุขภาพใจอย่างเป็นกันเองและปลอดภัย
                     </label>
                   </div>
 
                   <div className="flex items-center justify-between gap-3 pt-1">
                     <button
                       type="button"
-                      onClick={() => setMsuFollowupOpen(false)}
-                      className="text-xs text-[#888] hover:text-[#444] px-2 py-1"
+                      onClick={() => setCareFollowupOpen(false)}
+                      className="text-xs text-[#888] hover:text-[#444] px-2 py-1 cursor-pointer"
                     >
                       ยกเลิก
                     </button>
@@ -1127,7 +1099,7 @@ export default function AssessmentPage() {
                       className="px-6 py-2.5 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1B432E] font-medium text-xs sm:text-sm flex items-center gap-2 shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
                     >
                       <Send size={14} />
-                      <span>{submittingFollowup ? "กำลังส่งข้อมูล..." : "ยินยอมส่งต่อข้อมูลเพื่อติดตามอาการ"}</span>
+                      <span>{submittingFollowup ? "กำลังส่งข้อมูล..." : "ยินยอมส่งต่อข้อมูลเพื่อให้พี่ ๆ ดูแลใจ"}</span>
                     </button>
                   </div>
                 </form>

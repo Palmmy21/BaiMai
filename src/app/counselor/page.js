@@ -35,7 +35,7 @@ export default function CounselorPortalPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCase, setSelectedCase] = useState(null);
   const [noteText, setNoteText] = useState("");
-  const [counselorName, setCounselorName] = useState("อาจารย์/ผู้ให้คำปรึกษา มมส.");
+  const [counselorName, setCounselorName] = useState("พี่ ๆ ผู้ดูแล BaiMai");
   const [updating, setUpdating] = useState(false);
 
   // Authentication State
@@ -49,7 +49,9 @@ export default function CounselorPortalPage() {
 
   // Check saved session on mount
   useEffect(() => {
-    const saved = typeof window !== "undefined" ? sessionStorage.getItem("msu_counselor_auth") : null;
+    const saved = typeof window !== "undefined" 
+      ? sessionStorage.getItem("baimai_care_auth") || sessionStorage.getItem("msu_counselor_auth")
+      : null;
     if (saved) {
       setAuthToken(saved);
       setIsAuthenticated(true);
@@ -99,7 +101,7 @@ export default function CounselorPortalPage() {
       const data = await res.json();
 
       if (data.success && data.token) {
-        sessionStorage.setItem("msu_counselor_auth", data.token);
+        sessionStorage.setItem("baimai_care_auth", data.token);
         setAuthToken(data.token);
         setIsAuthenticated(true);
         setPasscode("");
@@ -118,6 +120,7 @@ export default function CounselorPortalPage() {
   // Logout handler
   const handleLogout = () => {
     if (typeof window !== "undefined") {
+      sessionStorage.removeItem("baimai_care_auth");
       sessionStorage.removeItem("msu_counselor_auth");
     }
     setAuthToken("");
@@ -194,9 +197,10 @@ export default function CounselorPortalPage() {
   // Filter list
   const filteredList = followups.filter((item) => {
     const matchesSearch = 
-      item.studentId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.faculty?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.grade?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.school?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.topic?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.id?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesSeverity =
@@ -238,15 +242,15 @@ export default function CounselorPortalPage() {
           </div>
 
           <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-[#FAEBEE] text-[#8C1D2F] border border-[#F3D1D8]">
-              <ShieldAlert size={12} />
-              <span>พื้นที่ข้อมูลชั้นความลับทางการแพทย์ (มมส.)</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-[#E2F2E9] text-[#1B432E] border border-[#B8DCC8]">
+              <ShieldCheck size={12} />
+              <span>พื้นที่ดูแลน้อง ๆ (สำหรับพี่ ๆ ผู้ดูแล BaiMai Care)</span>
             </div>
             <h1 className="text-lg sm:text-xl font-bold text-[#333] pt-1">
-              เข้าสู่ระบบดูแลสุขภาวะนิสิต มมส.
+              เข้าสู่ระบบดูแลน้อง ๆ BaiMai Care
             </h1>
             <p className="text-xs text-[#7A7A7A] leading-relaxed">
-              สำหรับอาจารย์ที่ปรึกษาและเจ้าหน้าที่ศูนย์สุขภาวะนิสิต มหาวิทยาลัยมหาสารคาม กรุณาระบุรหัสผ่านเพื่อเข้าถึงข้อมูลเคสนิสิต
+              สำหรับพี่ ๆ ผู้ดูแล BaiMai Care กรุณาระบุรหัสผ่านเพื่อเข้าถึงข้อมูลการดูแลและติดตามถามไถ่สุขภาพใจของน้อง ๆ
             </p>
           </div>
 
@@ -262,8 +266,8 @@ export default function CounselorPortalPage() {
           <form onSubmit={handleLogin} className="space-y-4 text-left">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-[#555] flex items-center justify-between">
-                <span>รหัสผ่านเจ้าหน้าที่ / PIN</span>
-                <span className="text-[10px] text-[#888] font-normal">MSU Counselor Passcode</span>
+                <span>รหัสผ่านพี่ ๆ ผู้ดูแล / PIN</span>
+                <span className="text-[10px] text-[#888] font-normal">BaiMai Caregiver Passcode</span>
               </label>
 
               <div className="relative">
@@ -271,7 +275,7 @@ export default function CounselorPortalPage() {
                   type={showPassword ? "text" : "password"}
                   required
                   autoFocus
-                  placeholder="กรอกรหัสผ่านเจ้าหน้าที่ มมส."
+                  placeholder="กรอกรหัสผ่านพี่ ๆ ผู้ดูแล"
                   value={passcode}
                   onChange={(e) => setPasscode(e.target.value)}
                   className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs sm:text-sm focus:outline-none focus:border-[#779988]"
@@ -288,7 +292,7 @@ export default function CounselorPortalPage() {
 
               {/* Dev/Demo Hint */}
               <p className="text-[11px] text-[#8A8A8A] pt-0.5">
-                💡 รหัสผ่านเริ่มต้นสำหรับทดสอบระบบ: <code className="bg-[#F0ECE1] px-1.5 py-0.5 rounded text-[#245238] font-mono font-semibold">msu2026</code> หรือ <code className="bg-[#F0ECE1] px-1.5 py-0.5 rounded text-[#245238] font-mono font-semibold">MSU@Care2026</code>
+                💡 รหัสผ่านเริ่มต้นสำหรับเข้าสู่ระบบ: <code className="bg-[#F0ECE1] px-1.5 py-0.5 rounded text-[#245238] font-mono font-semibold">baimai2026</code> หรือ <code className="bg-[#F0ECE1] px-1.5 py-0.5 rounded text-[#245238] font-mono font-semibold">baimai</code>
               </p>
             </div>
 
@@ -358,15 +362,15 @@ export default function CounselorPortalPage() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-semibold text-[#3A3A3A] tracking-tight">
-                  ระบบติดตามและดูแลสุขภาวะนิสิต มมส.
+                  ระบบดูแลน้อง ๆ BaiMai Care
                 </h1>
                 <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#E2F2E9] text-[#1B432E] border border-[#B8DCC8]">
                   <ShieldCheck size={11} />
-                  <span>ยืนยันสิทธิ์แล้ว</span>
+                  <span>พี่ ๆ ผู้ดูแลยืนยันสิทธิ์แล้ว</span>
                 </span>
               </div>
               <p className="text-xs text-[#7A7A7A]">
-                ศูนย์สุขภาวะนิสิต กองกิจการนิสิต มหาวิทยาลัยมหาสารคาม ร่วมกับ โรงพยาบาลสุทธาเวช
+                พื้นที่บันทึกและติดตามดูแลสุขภาวะใจสำหรับพี่ ๆ ผู้ดูแล BaiMai Care
               </p>
             </div>
           </div>
@@ -397,7 +401,7 @@ export default function CounselorPortalPage() {
       {/* Stats Summary Row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <div className="p-4 rounded-2xl bg-white border border-[#EFEAE1] shadow-2xs space-y-1">
-          <span className="text-xs text-[#8A8A8A]">นิสิตที่ขอรับการติดตาม</span>
+          <span className="text-xs text-[#8A8A8A]">น้อง ๆ ที่ขอรับการดูแล</span>
           <p className="text-2xl font-bold text-[#333]">{followups.length} คน</p>
         </div>
         <div className="p-4 rounded-2xl bg-[#FFF5F5] border border-[#F3D1D8] shadow-2xs space-y-1">
@@ -430,7 +434,7 @@ export default function CounselorPortalPage() {
               <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#888]" />
               <input
                 type="text"
-                placeholder="ค้นหารหัสนิสิต, ชื่อ, คณะ, หรือเลขเคส..."
+                placeholder="ค้นหาชื่อน้อง, ระดับชั้น, โรงเรียน, หรือเลขเคส..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs focus:outline-none focus:border-[#779988]"
@@ -462,8 +466,8 @@ export default function CounselorPortalPage() {
                 <option value="all">ทุกสถานะการติดตาม</option>
                 <option value="pending">รอการติดต่อกลับ</option>
                 <option value="contacted">ติดต่อเบื้องต้นแล้ว</option>
-                <option value="in_counseling">กำลังรับคำปรึกษา</option>
-                <option value="completed">ติดตามผลเสร็จสิ้น</option>
+                <option value="in_counseling">กำลังดูแลต่อเนื่อง</option>
+                <option value="completed">ดูแลเสร็จสิ้น</option>
               </select>
             </div>
           </div>
@@ -471,12 +475,12 @@ export default function CounselorPortalPage() {
           {/* List of Cases */}
           {loading ? (
             <div className="text-center py-12 text-xs text-[#8A8A8A] bg-white rounded-2xl border border-[#EFEAE1]">
-              กำลังโหลดข้อมูลการติดตามอาการ...
+              กำลังโหลดข้อมูลการดูแลน้อง ๆ...
             </div>
           ) : filteredList.length === 0 ? (
             <div className="text-center py-12 text-xs text-[#8A8A8A] bg-white rounded-2xl border border-[#EFEAE1] space-y-1">
               <p className="text-sm font-medium text-[#555]">ยังไม่มีข้อมูลที่ตรงกับตัวกรอง</p>
-              <p className="text-xs text-[#999]">เมื่อนิสิตทำแบบประเมินและกดยินยอมให้ติดตามอาการ ข้อมูลจะปรากฏที่นี่</p>
+              <p className="text-xs text-[#999]">เมื่อน้อง ๆ ทำแบบประเมินและยินยอมให้พี่ ๆ ผู้ดูแลติดต่อกลับ ข้อมูลจะปรากฏที่นี่</p>
             </div>
           ) : (
             <div className="space-y-2.5">
@@ -498,17 +502,25 @@ export default function CounselorPortalPage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-semibold text-[#1B432E] bg-[#E2F2E9] px-2 py-0.5 rounded-md">
-                            {item.studentId}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-semibold text-xs text-[#1B432E] bg-[#E2F2E9] px-2 py-0.5 rounded-md">
+                            {item.grade || "มัธยม"}
                           </span>
-                          <span className="font-semibold text-xs sm:text-sm text-[#333]">
+                          <span className="font-bold text-xs sm:text-sm text-[#333]">
                             {item.name}
                           </span>
-                          <span className="text-[11px] text-[#777] bg-white px-2 py-0.5 rounded border border-[#E8DFC9]">
-                            {item.faculty}
-                          </span>
+                          {item.school && (
+                            <span className="text-[11px] text-[#777] bg-white px-2 py-0.5 rounded border border-[#E8DFC9]">
+                              {item.school}
+                            </span>
+                          )}
                         </div>
+
+                        {item.topic && (
+                          <p className="text-xs text-[#555] line-clamp-1">
+                            💬 หัวข้อ: {item.topic}
+                          </p>
+                        )}
 
                         <div className="flex items-center gap-3 text-xs text-[#666] pt-0.5">
                           <span>เบอร์/Line: <strong className="text-[#333]">{item.contact}</strong></span>
@@ -541,7 +553,7 @@ export default function CounselorPortalPage() {
                         }`}>
                           {item.status === "pending" ? "รอติดต่อกลับ" :
                            item.status === "contacted" ? "ติดต่อแล้ว" :
-                           item.status === "in_counseling" ? "กำลังให้คำปรึกษา" : "เสร็จสิ้น"}
+                           item.status === "in_counseling" ? "กำลังดูแลต่อเนื่อง" : "เสร็จสิ้น"}
                         </span>
                       </div>
                     </div>
@@ -560,9 +572,16 @@ export default function CounselorPortalPage() {
                 <div>
                   <span className="text-[10px] font-mono text-[#888]">{selectedCase.id}</span>
                   <h3 className="text-base font-bold text-[#333]">
-                    {selectedCase.name} ({selectedCase.studentId})
+                    {selectedCase.name}
                   </h3>
-                  <p className="text-xs text-[#666]">{selectedCase.faculty}</p>
+                  <p className="text-xs text-[#666]">
+                    ระดับชั้น: {selectedCase.grade || "มัธยม"} {selectedCase.school ? `• ${selectedCase.school}` : ""}
+                  </p>
+                  {selectedCase.topic && (
+                    <p className="text-xs text-[#2F6B4A] font-medium mt-0.5">
+                      💬 หัวข้อที่อยากคุย: {selectedCase.topic}
+                    </p>
+                  )}
                 </div>
 
                 <div className="text-right text-[11px] text-[#888]">
@@ -603,11 +622,11 @@ export default function CounselorPortalPage() {
 
               {/* Status Update Buttons */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#555]">ปรับสถานะการติดตาม:</label>
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <label className="text-xs font-semibold text-[#555]">ปรับสถานะการดูแล:</label>
+                <div className="grid grid-cols-3 gap-2 text-xs">
                   <button
                     onClick={() => handleUpdateStatus(selectedCase.id, "contacted")}
-                    className={`py-2 px-3 rounded-xl border text-center transition-all ${
+                    className={`py-2 px-2.5 rounded-xl border text-center transition-all ${
                       selectedCase.status === "contacted"
                         ? "bg-[#EBF3FA] border-[#C7DDF2] text-[#204E78] font-bold"
                         : "border-[#EFEAE1] hover:bg-[#F3EFE6] text-[#555]"
@@ -617,13 +636,23 @@ export default function CounselorPortalPage() {
                   </button>
                   <button
                     onClick={() => handleUpdateStatus(selectedCase.id, "in_counseling")}
-                    className={`py-2 px-3 rounded-xl border text-center transition-all ${
+                    className={`py-2 px-2.5 rounded-xl border text-center transition-all ${
                       selectedCase.status === "in_counseling"
                         ? "bg-[#E2F2E9] border-[#B8DCC8] text-[#1B432E] font-bold"
                         : "border-[#EFEAE1] hover:bg-[#F3EFE6] text-[#555]"
                     }`}
                   >
-                    🌿 กำลังดูแลต่อเนื่อง
+                    🌿 กำลังดูแล
+                  </button>
+                  <button
+                    onClick={() => handleUpdateStatus(selectedCase.id, "completed")}
+                    className={`py-2 px-2.5 rounded-xl border text-center transition-all ${
+                      selectedCase.status === "completed"
+                        ? "bg-[#F0ECE1] border-[#D0CAB7] text-[#333] font-bold"
+                        : "border-[#EFEAE1] hover:bg-[#F3EFE6] text-[#555]"
+                    }`}
+                  >
+                    ✅ สบายใจขึ้น
                   </button>
                 </div>
               </div>
@@ -632,7 +661,7 @@ export default function CounselorPortalPage() {
               <div className="space-y-3 pt-2 border-t border-[#EFEAE1]">
                 <h4 className="text-xs font-semibold text-[#333] flex items-center gap-1.5">
                   <FileText size={13} className="text-[#779988]" />
-                  <span>บันทึกความก้าวหน้าและการติดตามอาการ:</span>
+                  <span>บันทึกการพูดคุยและติดตามดูแลใจ:</span>
                 </h4>
 
                 {/* Previous notes */}
@@ -658,7 +687,7 @@ export default function CounselorPortalPage() {
                 <form onSubmit={handleAddNote} className="space-y-2 pt-1">
                   <textarea
                     rows={2}
-                    placeholder="พิมพ์บันทึกผลการติดต่อ / นัดหมายนิสิต..."
+                    placeholder="พิมพ์บันทึกการพูดคุย / ถามไถ่อาการน้อง ๆ..."
                     value={noteText}
                     onChange={(e) => setNoteText(e.target.value)}
                     className="w-full p-2.5 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs focus:outline-none focus:border-[#779988]"
@@ -685,9 +714,9 @@ export default function CounselorPortalPage() {
           ) : (
             <div className="bg-white/80 rounded-3xl p-8 border border-[#EFEAE1] text-center space-y-2 text-[#888] text-xs">
               <Users size={32} className="mx-auto text-[#B8DCC8]" />
-              <p className="font-medium text-[#555]">เลือกเคสนิสิตเพื่อดูรายละเอียดและบันทึกติดตามอาการ</p>
+              <p className="font-medium text-[#555]">เลือกเคสน้อง ๆ เพื่อดูรายละเอียดและบันทึกติดตามอาการ</p>
               <p className="text-[11px] text-[#999]">
-                อาจารย์และเจ้าหน้าที่สามารถบันทึกผลการติดต่อ และประสานส่งต่อ รพ.สุทธาเวช ได้ที่นี่
+                พี่ ๆ ผู้ดูแลสามารถบันทึกผลการพูดคุย และติดตามดูแลสุขภาพใจของน้อง ๆ ได้ที่นี่
               </p>
             </div>
           )}
