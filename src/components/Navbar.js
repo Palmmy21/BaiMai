@@ -60,7 +60,7 @@ export default function Navbar() {
               </span>
             </span>
             <span className="text-[10px] text-[#8A8A8A] hidden sm:block -mt-0.5">
-              ใจดีกับตัวเอง • พื้นที่ปลอดภัยสำหรับใจคุณ
+              ใจดีกับตัวเอง... ในวันที่โลกใจร้าย
             </span>
           </div>
         </Link>
