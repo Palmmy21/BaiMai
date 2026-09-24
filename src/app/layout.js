@@ -19,9 +19,32 @@ const maliFont = Mali({
 });
 
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://baimai.vercel.app"),
   title: "BaiMai (ใบไม้) — พื้นที่เล็ก ๆ สำหรับปล่อยความรู้สึก",
-  description: "อารมณ์คือใบไม้ ที่สักวันจะร่วงหล่น... พื้นที่ปลอดภัย 100% สำหรับการเขียนระบายสิ่งที่อยู่ในใจ แล้วปล่อยให้ปลิวไปตามสายลม",
-  keywords: ["BaiMai", "ใบไม้", "สุขภาพจิต", "ระบายความรู้สึก", "ปล่อยความรู้สึก", "ฝึกหายใจ", "safe space"],
+  description: "อารมณ์คือใบไม้ ที่สักวันจะร่วงหล่น... พื้นที่ปลอดภัย 100% สำหรับการเขียนระบายสิ่งที่อยู่ในใจ ฝึกหายใจ และเช็กสุขภาพใจตนเอง 🌱",
+  keywords: ["BaiMai", "ใบไม้", "สุขภาพจิต", "ระบายความรู้สึก", "ปล่อยความรู้สึก", "ฝึกหายใจ", "safe space", "มัธยม"],
+  authors: [{ name: "BaiMai Care Team" }],
+  openGraph: {
+    title: "BaiMai (ใบไม้) — พื้นที่เล็ก ๆ สำหรับปล่อยความรู้สึก",
+    description: "อารมณ์คือใบไม้ ที่สักวันจะร่วงหล่น... พื้นที่ปลอดภัยสำหรับการเขียนระบายสิ่งที่อยู่ในใจ และดูแลใจตนเอง 🌱",
+    siteName: "BaiMai (ใบไม้)",
+    images: [
+      {
+        url: "/og-cover.jpg",
+        width: 1200,
+        height: 630,
+        alt: "BaiMai (ใบไม้) — พื้นที่ปลอดภัยสำหรับใจคุณ",
+      },
+    ],
+    locale: "th_TH",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BaiMai (ใบไม้) — พื้นที่เล็ก ๆ สำหรับปล่อยความรู้สึก",
+    description: "อารมณ์คือใบไม้ ที่สักวันจะร่วงหล่น... พื้นที่ปลอดภัยสำหรับการเขียนระบายสิ่งที่อยู่ในใจ และดูแลใจตนเอง 🌱",
+    images: ["/og-cover.jpg"],
+  },
   icons: {
     icon: [
       { url: "/icon.png", type: "image/png" },
