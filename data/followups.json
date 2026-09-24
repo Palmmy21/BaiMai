@@ -1,0 +1,21 @@
+[
+  {
+    "id": "MSU-CARE-1302",
+    "createdAt": "2026-09-24T02:07:37.908Z",
+    "studentId": "65011234567",
+    "name": "นิสิตทดสอบ",
+    "faculty": "คณะวิทยาการสารสนเทศ",
+    "contact": "089-123-4567",
+    "email": "65011234567@msu.ac.th",
+    "topic": "เครียดเรื่องวิทยานิพนธ์",
+    "preferredTime": "ทุกช่วงเวลาที่สะดวก",
+    "score9Q": 14,
+    "score8Q": 5,
+    "severity9Q": "moderate",
+    "severity8Q": "mild",
+    "answers2Q": {},
+    "status": "pending",
+    "counselorNotes": [],
+    "lastFollowUp": null
+  }
+]

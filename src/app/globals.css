@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #FFFDF8;
+  --pastel-green: #B8DCC8;
+  --pastel-green-light: #E2F2E9;
+  --pastel-blue: #C7DDF2;
+  --pastel-blue-light: #EBF3FA;
+  --pastel-pink: #F3D1D8;
+  --pastel-pink-light: #FAEBEE;
+  --pastel-yellow: #F7E6B5;
+  --pastel-yellow-light: #FDF7E5;
+  --text-main: #4A4A4A;
+  --text-secondary: #8A8A8A;
+  --text-light: #A5A5A5;
+  --card-bg: #FFFFFF;
+  --border-soft: #F0ECE1;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-prompt), sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+.font-handwriting {
+  font-family: var(--font-mali), cursive, sans-serif;
+}
+
+/* Subtle paper texture background */
+.paper-texture {
+  background-color: #FFFDF8;
+  background-image: radial-gradient(#ebe6dc 0.75px, transparent 0.75px);
+  background-size: 16px 16px;
+}
+
+/* Torn paper edge simulation */
+.torn-left {
+  clip-path: polygon(
+    0% 0%, 
+    100% 0%, 
+    93% 5%, 98% 12%, 92% 20%, 97% 28%, 91% 36%, 98% 44%, 93% 52%, 99% 60%, 92% 68%, 97% 76%, 91% 84%, 98% 92%, 94% 100%, 
+    0% 100%
+  );
+}
+
+.torn-right {
+  clip-path: polygon(
+    7% 0%, 
+    100% 0%, 
+    100% 100%, 
+    6% 100%, 
+    1% 92%, 8% 84%, 2% 76%, 7% 68%, 1% 60%, 8% 52%, 2% 44%, 9% 36%, 2% 28%, 8% 20%, 3% 12%, 7% 5%
+  );
+}
+
+/* Custom scrollbar for soothing look */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E0DACB;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C7BFAD;
+}
