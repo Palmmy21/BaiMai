@@ -53,15 +53,15 @@ function mapFromSupabase(row) {
   };
 }
 
-const VALID_AUTH_TOKENS = [
-  "baimai_care_session",
-  "baimai2026",
-  "baimai",
-  "baimai@care",
-  "msu_counselor_verified_session",
-  "msu2026",
-  process.env.COUNSELOR_PASSCODE,
-].filter(Boolean);
+// Security: Fixed caregiver passcode & secure session token
+const FIXED_COUNSELOR_PASSCODE = (process.env.COUNSELOR_PASSCODE || "baimai2026").trim();
+const SECURE_SESSION_TOKEN = "baimai_care_session_secure";
+const VALID_AUTH_TOKENS = [SECURE_SESSION_TOKEN, FIXED_COUNSELOR_PASSCODE];
+
+// In-memory brute-force rate limiter for caregiver login (persists across Next.js reloads)
+const failedLoginMap = globalThis.__baimai_failed_logins || (globalThis.__baimai_failed_logins = new Map());
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 60 * 1000; // 60 seconds lockout
 
 // Check if request is authorized
 function isAuthorized(request) {
@@ -124,24 +124,73 @@ export async function POST(request) {
 
     // 1. Caregiver Authentication Action
     if (body.action === "login") {
+      const clientIp =
+        request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+        request.headers.get("x-real-ip") ||
+        "client-ip";
+
+      const now = Date.now();
+      const clientRecord = failedLoginMap.get(clientIp);
+
+      // Check if locked out
+      if (clientRecord && clientRecord.lockUntil > now) {
+        const remainingSec = Math.ceil((clientRecord.lockUntil - now) / 1000);
+        return NextResponse.json(
+          {
+            success: false,
+            message: `ใส่รหัสผ่านผิดเกินกำหนด ระบบถูกระงับชั่วคราวเพื่อความปลอดภัย กรุณารออีก ${remainingSec} วินาที`,
+            isLocked: true,
+            cooldownSeconds: remainingSec,
+          },
+          { status: 429 }
+        );
+      }
+
       const { passcode } = body;
       const cleanPass = passcode?.trim();
-      const isValid = VALID_AUTH_TOKENS.includes(cleanPass);
+      const isMatch = Boolean(cleanPass && cleanPass === FIXED_COUNSELOR_PASSCODE);
 
-      if (isValid) {
+      if (isMatch) {
+        // Reset failed attempts on success
+        failedLoginMap.delete(clientIp);
         return NextResponse.json({
           success: true,
-          token: "baimai_care_session",
-          message: "เข้าสู่ระบบสำเร็จ ยินดีต้อนรับพี่ ๆ ผู้ดูแล BaiMai 🌱",
+          token: SECURE_SESSION_TOKEN,
+          message: "เข้าสู่ระบบสำเร็จ ยินดีต้อนรับพี่ ๆ ผู้ดูแล BaiMai Care 🌱",
         });
       }
 
+      // Record failed attempt
+      let prevAttempts = 0;
+      if (clientRecord) {
+        if (clientRecord.lockUntil > 0 && clientRecord.lockUntil <= now) {
+          prevAttempts = 0; // Lockout expired, reset counter
+        } else {
+          prevAttempts = clientRecord.count || 0;
+        }
+      }
+      const newAttempts = prevAttempts + 1;
+      const willLock = newAttempts >= MAX_FAILED_ATTEMPTS;
+      const lockUntil = willLock ? now + LOCKOUT_DURATION_MS : 0;
+
+      failedLoginMap.set(clientIp, { count: newAttempts, lockUntil });
+
+      const remainingAttempts = Math.max(0, MAX_FAILED_ATTEMPTS - newAttempts);
+      const message = willLock
+        ? `คุณใส่รหัสผ่านผิดติดต่อกันครบ ${MAX_FAILED_ATTEMPTS} ครั้งแล้ว ระบบถูกระงับชั่วคราว 60 วินาทีเพื่อความปลอดภัย`
+        : remainingAttempts > 0
+          ? `รหัสผ่านไม่ถูกต้อง (หากลืมรหัสผ่าน กรุณาติดต่อผู้ดูแลระบบ BaiMai Care — เหลือโอกาสอีก ${remainingAttempts} ครั้ง)`
+          : `รหัสผ่านไม่ถูกต้อง ระบบกำลังระงับการเข้าสู่ระบบชั่วคราว`;
+
       return NextResponse.json(
-        { 
-          success: false, 
-          message: "รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบรหัสผ่านพี่ ๆ ผู้ดูแล BaiMai" 
-        }, 
-        { status: 401 }
+        {
+          success: false,
+          message,
+          isLocked: willLock,
+          cooldownSeconds: willLock ? 60 : 0,
+          remainingAttempts,
+        },
+        { status: willLock ? 429 : 401 }
       );
     }
 

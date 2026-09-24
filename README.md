@@ -22,7 +22,7 @@
    - ออกรหัสเคสดูแลใจ (`BAIMAI-CARE-XXXX`)
 
 4. **🔒 พอร์ทัลพี่ ๆ ผู้ดูแล (`/counselor`)**
-   - **Passcode Authentication Gate**: ป้องกันการเข้าถึงด้วยระบบรหัสผ่านพี่ ๆ ผู้ดูแล (รหัสผ่านเริ่มต้น: `baimai2026` หรือ `baimai`)
+   - **Passcode Authentication Gate**: ป้องกันการเข้าถึงด้วยระบบรหัสผ่านพี่ ๆ ผู้ดูแลที่กำหนดผ่านตัวแปรสภาพแวดล้อม (Environment Variable: `COUNSELOR_PASSCODE`) พร้อมระบบป้องกันการสุ่มรหัสผ่าน (Rate Limiting & Lockout Cooldown)
    - ปกป้อง API ด้วย Token Authorization Header (`x-counselor-auth`) ป้องกันการเข้าถึงโดยไม่ได้รับอนุญาต
    - แดชบอร์ดสรุปสถิติดูแลน้อง ๆ, ค้นหาตามชื่อ/ระดับชั้น (ม.1-ม.3)/โรงเรียน/เลขเคส, ปรับสถานะการดูแล และสมุดบันทึกโน้ตติดตามอาการ
 

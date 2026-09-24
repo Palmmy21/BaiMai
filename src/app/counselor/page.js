@@ -48,19 +48,44 @@ export default function CounselorPortalPage() {
   const [authError, setAuthError] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [cooldown, setCooldown] = useState(0);
 
-  // Check saved session on mount
+  // Check saved session and active lockouts on mount
   useEffect(() => {
-    const saved = typeof window !== "undefined" 
-      ? sessionStorage.getItem("baimai_care_auth") || sessionStorage.getItem("msu_counselor_auth")
-      : null;
-    if (saved) {
-      setAuthToken(saved);
-      setIsAuthenticated(true);
-      fetchFollowups(saved);
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("baimai_care_auth");
+      if (saved) {
+        setAuthToken(saved);
+        setIsAuthenticated(true);
+        fetchFollowups(saved);
+      }
+      const lockUntil = Number(sessionStorage.getItem("baimai_care_lockout_until") || 0);
+      const now = Date.now();
+      if (lockUntil > now) {
+        setCooldown(Math.ceil((lockUntil - now) / 1000));
+      }
     }
     setCheckingAuth(false);
   }, []);
+
+  // Cooldown countdown timer
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const interval = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          if (typeof window !== "undefined") {
+            sessionStorage.removeItem("baimai_care_lockout_until");
+          }
+          setAuthError("");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldown]);
 
   // Fetch follow-ups with Authorization header
   const fetchFollowups = async (tokenOverride) => {
@@ -87,10 +112,10 @@ export default function CounselorPortalPage() {
     }
   };
 
-  // Login handler
+  // Login handler with brute-force defense
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!passcode.trim()) return;
+    if (cooldown > 0 || !passcode.trim()) return;
     setAuthLoading(true);
     setAuthError("");
 
@@ -103,17 +128,33 @@ export default function CounselorPortalPage() {
       const data = await res.json();
 
       if (data.success && data.token) {
-        sessionStorage.setItem("baimai_care_auth", data.token);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("baimai_care_auth", data.token);
+          sessionStorage.removeItem("baimai_care_lockout_until");
+        }
         setAuthToken(data.token);
         setIsAuthenticated(true);
         setPasscode("");
+        setFailedAttempts(0);
+        setCooldown(0);
         fetchFollowups(data.token);
       } else {
-        setAuthError(data.message || "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+        setPasscode(""); // Clear passcode for security
+        if (data.isLocked && data.cooldownSeconds) {
+          const lockUntil = Date.now() + data.cooldownSeconds * 1000;
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("baimai_care_lockout_until", lockUntil.toString());
+          }
+          setCooldown(data.cooldownSeconds);
+          setAuthError(data.message || `ใส่รหัสผ่านผิดเกินกำหนด กรุณารอ ${data.cooldownSeconds} วินาที`);
+        } else {
+          setFailedAttempts((prev) => prev + 1);
+          setAuthError(data.message || "รหัสผ่านไม่ถูกต้อง (หากลืมรหัสผ่าน กรุณาติดต่อผู้ดูแลระบบ BaiMai Care)");
+        }
       }
     } catch (err) {
       console.error("Auth error:", err);
-      setAuthError("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่");
+      setAuthError("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง");
     } finally {
       setAuthLoading(false);
     }
@@ -310,33 +351,54 @@ export default function CounselorPortalPage() {
                   type={showPassword ? "text" : "password"}
                   required
                   autoFocus
-                  placeholder="กรอกรหัสผ่านพี่ ๆ ผู้ดูแล"
+                  autoComplete="current-password"
+                  disabled={cooldown > 0}
+                  placeholder={cooldown > 0 ? `ระบบถูกระงับชั่วคราว (${cooldown}s)` : "กรอกรหัสผ่านพี่ ๆ ผู้ดูแล"}
                   value={passcode}
                   onChange={(e) => setPasscode(e.target.value)}
-                  className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs sm:text-sm focus:outline-none focus:border-[#779988]"
+                  className={`w-full pl-3.5 pr-10 py-2.5 rounded-xl border text-xs sm:text-sm focus:outline-none transition-all ${
+                    cooldown > 0
+                      ? "bg-[#F7F7F7] border-[#E2E2E2] text-[#999] cursor-not-allowed"
+                      : "border-[#E0DACB] bg-[#FFFDF8] focus:border-[#779988]"
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[#888] hover:text-[#444] transition-colors"
                   tabIndex={-1}
+                  disabled={cooldown > 0}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
 
-              {/* Dev/Demo Hint */}
-              <p className="text-[11px] text-[#8A8A8A] pt-0.5">
-                💡 รหัสผ่านเริ่มต้นสำหรับเข้าสู่ระบบ: <code className="bg-[#F0ECE1] px-1.5 py-0.5 rounded text-[#245238] font-mono font-semibold">baimai2026</code> หรือ <code className="bg-[#F0ECE1] px-1.5 py-0.5 rounded text-[#245238] font-mono font-semibold">baimai</code>
-              </p>
+              {/* Security Lockout Notice / Guidance */}
+              {cooldown > 0 ? (
+                <div className="p-2.5 rounded-xl bg-[#FFF8E6] border border-[#F0D59E] text-[11px] text-[#8B6508] flex items-center gap-2">
+                  <ShieldAlert size={14} className="shrink-0 text-[#B7791F]" />
+                  <span>
+                    ระงับการลองชั่วคราว กรุณารออีก <strong className="font-mono text-[#744210] font-bold">{cooldown}</strong> วินาที
+                  </span>
+                </div>
+              ) : (
+                <p className="text-[11px] text-[#8A8A8A] pt-0.5">
+                  🛡️ ข้อมูลเฉพาะพี่ ๆ ผู้ดูแล BaiMai เพื่อความปลอดภัยของข้อมูลน้อง ๆ
+                </p>
+              )}
             </div>
 
             <button
               type="submit"
-              disabled={authLoading || !passcode.trim()}
-              className="w-full py-3 px-4 rounded-full bg-[#2D5A3F] hover:bg-[#224430] text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+              disabled={authLoading || !passcode.trim() || cooldown > 0}
+              className="w-full py-3 px-4 rounded-full bg-[#2D5A3F] hover:bg-[#224430] text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
-              {authLoading ? (
+              {cooldown > 0 ? (
+                <>
+                  <Lock size={15} />
+                  <span>ระบบถูกระงับชั่วคราว ({cooldown} วินาที)</span>
+                </>
+              ) : authLoading ? (
                 <>
                   <RefreshCw size={14} className="animate-spin" />
                   <span>กำลังตรวจสอบรหัสผ่าน...</span>
