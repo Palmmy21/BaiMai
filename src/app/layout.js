@@ -18,8 +18,25 @@ const maliFont = Mali({
   display: "swap",
 });
 
+const getSiteUrl = () => {
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL.startsWith("http")
+      ? process.env.NEXT_PUBLIC_SITE_URL
+      : `https://${process.env.NEXT_PUBLIC_SITE_URL}`;
+  }
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return "https://jaidee-kappa.vercel.app";
+};
+
+const siteUrl = getSiteUrl();
+
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://jaidee.vercel.app"),
+  metadataBase: new URL(siteUrl),
   title: "jaidee (ใจดี) — พื้นที่เล็ก ๆ สำหรับปล่อยความรู้สึกและใจดีกับตัวเอง",
   description: "jaidee (ใจดี) พื้นที่ปลอดภัย 100% สำหรับการเขียนระบายสิ่งที่อยู่ในใจ ฝึกหายใจ และเช็กสุขภาพใจตนเอง ใจดีกับตัวเองในทุกวัน 🌱",
   keywords: ["jaidee", "ใจดี", "สุขภาพจิต", "ระบายความรู้สึก", "ปล่อยความรู้สึก", "ฝึกหายใจ", "safe space", "มัธยม"],
@@ -27,6 +44,7 @@ export const metadata = {
   openGraph: {
     title: "jaidee (ใจดี) — พื้นที่เล็ก ๆ สำหรับปล่อยความรู้สึกและใจดีกับตัวเอง",
     description: "jaidee (ใจดี) พื้นที่ปลอดภัยสำหรับการเขียนระบายสิ่งที่อยู่ในใจ และดูแลใจตนเอง 🌱",
+    url: siteUrl,
     siteName: "jaidee (ใจดี)",
     images: [
       {
@@ -34,6 +52,7 @@ export const metadata = {
         width: 1200,
         height: 630,
         alt: "jaidee (ใจดี) — พื้นที่ปลอดภัยสำหรับใจคุณ",
+        type: "image/jpeg",
       },
     ],
     locale: "th_TH",
