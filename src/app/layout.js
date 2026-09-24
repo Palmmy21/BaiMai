@@ -22,6 +22,13 @@ export const metadata = {
   title: "BaiMai (ใบไม้) — พื้นที่เล็ก ๆ สำหรับปล่อยความรู้สึก",
   description: "อารมณ์คือใบไม้ ที่สักวันจะร่วงหล่น... พื้นที่ปลอดภัย 100% สำหรับการเขียนระบายสิ่งที่อยู่ในใจ แล้วปล่อยให้ปลิวไปตามสายลม",
   keywords: ["BaiMai", "ใบไม้", "สุขภาพจิต", "ระบายความรู้สึก", "ปล่อยความรู้สึก", "ฝึกหายใจ", "safe space"],
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({ children }) {

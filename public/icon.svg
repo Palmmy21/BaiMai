@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E2F2E9"/>
+      <stop offset="100%" stop-color="#B8DCC8"/>
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#408C5D"/>
+      <stop offset="100%" stop-color="#1B4D31"/>
+    </linearGradient>
+    <linearGradient id="veinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A5E2BE" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#DDF5E7" stop-opacity="0.8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Soothing squircle background -->
+  <rect width="64" height="64" rx="18" fill="url(#bgGrad)"/>
+  
+  <!-- Outer glow ring -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- Organic leaf blade -->
+  <path d="M49 14 C49 14 30 15 21 27 C14 36 16 46 22 49 C28 52 38 52 46 41 C54 29 49 14 49 14 Z" fill="url(#leafGrad)"/>
+
+  <!-- Central stem and curve vein -->
+  <path d="M15 53 C18 47 24 39 35 28 C42 21 47 15 49 14" fill="none" stroke="url(#veinGrad)" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Leaf side veins -->
+  <path d="M28 35 C32 33 36 33 38 34" fill="none" stroke="url(#veinGrad)" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M33 28 C38 26 42 27 44 28" fill="none" stroke="url(#veinGrad)" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M24 43 C26 45 28 47 29 49" fill="none" stroke="url(#veinGrad)" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- Gentle dewdrop accent -->
+  <circle cx="43" cy="22" r="2.2" fill="#FFFFFF" opacity="0.9"/>
+</svg>
