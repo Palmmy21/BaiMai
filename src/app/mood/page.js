@@ -54,7 +54,7 @@ const MOODS = [
     color: "bg-[#FAEBEE]",
     borderColor: "border-[#F3D1D8]",
     textColor: "text-[#632734]",
-    message: "ขอบคุณที่ซื่อสัตย์กับความรู้สึกตัวเองนะ เหนื่อยหน่อยใช่ไหม... ให้ BaiMai อยู่เป็นเพื่อนนะ 🍃",
+    message: "ขอบคุณที่ซื่อสัตย์กับความรู้สึกตัวเองนะ เหนื่อยหน่อยใช่ไหม... ให้ jaidee (ใจดี) อยู่เป็นเพื่อนนะ 🍃",
     actions: [
       { href: "/release", label: "✍️ ระบายความรู้สึกแล้วปล่อยมันไป", icon: Feather, color: "bg-[#B8DCC8] text-[#1B432E]" },
       { href: "/breathe", label: "🌬️ ฝึกหายใจคลายอึดอัด", icon: Wind, color: "bg-[#EBF3FA] text-[#245282]" },

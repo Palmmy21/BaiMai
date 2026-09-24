@@ -110,7 +110,7 @@ export default function HelpPage() {
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#E2F2E9] text-[#1B432E]">
               <Sparkles size={12} />
-              <span>พี่ ๆ ผู้ดูแล BaiMai (BaiMai Care Team)</span>
+              <span>พี่ ๆ ผู้ดูแล ใจดี (JaiDee Care Team)</span>
             </div>
             <h2 className="text-base sm:text-lg font-bold text-[#2D3748]">
               มีเรื่องไม่สบายใจ อยากให้พี่ ๆ ช่วยรับฟังไหม?
@@ -197,7 +197,7 @@ export default function HelpPage() {
           </div>
           <h2 className="text-base sm:text-lg font-semibold text-[#3A3A3A] flex items-center gap-2">
             <MessageCircle size={18} className="text-[#2B6CB0]" />
-            <span>ฝากข้อความถึงพี่ ๆ ผู้ดูแล BaiMai</span>
+            <span>ฝากข้อความถึงพี่ ๆ ผู้ดูแล ใจดี</span>
           </h2>
           <p className="text-xs text-[#7A7A7A]">
             หากไม่สะดวกโทร สามารถพิมพ์ฝากข้อความหรือช่องทางติดต่อกลับ (เช่น Line ID หรือ เบอร์โทร) เพื่อให้พี่ ๆ ทักหาได้นะ
@@ -232,7 +232,7 @@ export default function HelpPage() {
                 </label>
                 <input
                   type="text"
-                  placeholder="เช่น น้องใบไม้"
+                  placeholder="เช่น น้องใจดี"
                   value={formData.nickname}
                   onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs sm:text-sm focus:outline-none focus:border-[#779988]"
@@ -264,7 +264,7 @@ export default function HelpPage() {
                 <input
                   type="text"
                   required
-                  placeholder="เช่น Line: baimai_friend หรือ 08X-XXX-XXXX"
+                  placeholder="เช่น Line: jaidee_friend หรือ 08X-XXX-XXXX"
                   value={formData.contact}
                   onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs sm:text-sm focus:outline-none focus:border-[#779988]"
@@ -316,14 +316,14 @@ export default function HelpPage() {
           <div className="flex items-center gap-2">
             <span className="font-semibold text-[#3A3A3A] flex items-center gap-1.5">
               <span>🌱</span>
-              <span>สำหรับพี่ ๆ ผู้ดูแล BaiMai Care</span>
+              <span>สำหรับพี่ ๆ ผู้ดูแล ใจดี (JaiDee Care)</span>
             </span>
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#FAEBEE] text-[#8C1D2F] border border-[#F3D1D8]">
               <span>🔒 ต้องใช้รหัสผ่าน</span>
             </span>
           </div>
           <p className="text-[#7A7A7A]">
-            ระบบติดตามดูแลน้อง ๆ (BaiMai Care Tracker) ข้อมูลชั้นความลับทางการดูแล ต้องยืนยันรหัสผ่านก่อนเข้าถึง
+            ระบบติดตามดูแลน้อง ๆ (JaiDee Care Tracker) ข้อมูลชั้นความลับทางการดูแล ต้องยืนยันรหัสผ่านก่อนเข้าถึง
           </p>
         </div>
         <Link

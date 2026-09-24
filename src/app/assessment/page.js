@@ -268,7 +268,7 @@ export default function AssessmentPage() {
         color: "bg-[#FDF7E5] border-[#F7E6B5] text-[#5C4D20]",
         desc: "คุณอาจมีความเหนื่อยล้าหรือเรื่องกวนใจสะสมอยู่ ลองหาเวลาพักผ่อน ระบายความรู้สึกออกมา หรือฝึกหายใจช้า ๆ ดูนะ",
         clinicalAdvice: "แนะนำการให้คำปรึกษาเบื้องต้น (Supportive Counseling) การจัดการอารมณ์ และสุขศึกษาการนอนหลับและการคลายเครียด",
-        actionPlan: "ควรได้รับการดูแลและติดตามประเมินซ้ำด้วยแบบ 9Q ภายใน 2 สัปดาห์ หากคะแนนยังไม่ลดลง ควรพูดคุยกับพี่ ๆ ผู้ดูแล BaiMai Care หรือคุณครูแนะแนว",
+        actionPlan: "ควรได้รับการดูแลและติดตามประเมินซ้ำด้วยแบบ 9Q ภายใน 2 สัปดาห์ หากคะแนนยังไม่ลดลง ควรพูดคุยกับพี่ ๆ ผู้ดูแล ใจดี (JaiDee Care) หรือคุณครูแนะแนว",
         followUpTimeline: "นัดติดตามอาการซ้ำภายใน 2 สัปดาห์",
       };
     } else if (score <= 18) {
@@ -278,8 +278,8 @@ export default function AssessmentPage() {
         severity: "moderate",
         color: "bg-[#FAEBEE] border-[#F3D1D8] text-[#701E2D]",
         desc: "ความรู้สึกในใจกำลังส่งผลกระทบต่อการใช้ชีวิต คุณไม่จำเป็นต้องทนรับไว้คนเดียว การพูดคุยกับผู้เชี่ยวชาญจะช่วยให้เบาสบายขึ้นมากนะ",
-        clinicalAdvice: "จำเป็นต้องประเมินแบบ 8Q เพื่อสำรวจความปลอดภัยต่อตนเอง และควรได้รับคำปรึกษาเชิงลึกจากพี่ ๆ ผู้ดูแล BaiMai Care, คุณครูแนะแนว หรือจิตแพทย์เด็กและวัยรุ่น",
-        actionPlan: "แนะนำส่งต่อข้อมูลให้พี่ ๆ ผู้ดูแล BaiMai Care หรือพบคุณครูแนะแนว เพื่อรับการดูแลและติดตามอาการอย่างใกล้ชิด",
+        clinicalAdvice: "จำเป็นต้องประเมินแบบ 8Q เพื่อสำรวจความปลอดภัยต่อตนเอง และควรได้รับคำปรึกษาเชิงลึกจากพี่ ๆ ผู้ดูแล ใจดี (JaiDee Care), คุณครูแนะแนว หรือจิตแพทย์เด็กและวัยรุ่น",
+        actionPlan: "แนะนำส่งต่อข้อมูลให้พี่ ๆ ผู้ดูแล ใจดี (JaiDee Care) หรือพบคุณครูแนะแนว เพื่อรับการดูแลและติดตามอาการอย่างใกล้ชิด",
         followUpTimeline: "นัดติดตามอาการทุก 1 - 2 สัปดาห์",
       };
     } else {
@@ -349,7 +349,7 @@ export default function AssessmentPage() {
         color: "bg-[#FDF7E5] border-[#F7E6B5] text-[#5C4D20]",
         isUrgent: false,
         clinicalAdvice: "สร้างสัมพันธภาพ ให้กำลังใจ รับฟังด้วยความเข้าอกเข้าใจโดยไม่ตัดสิน เฝ้าระวังไม่ให้เกิดปัจจัยกระตุ้นความเครียด",
-        actionPlan: "แนะนำให้คนใกล้ชิด หรือพี่ ๆ ผู้ดูแล BaiMai Care ช่วยรับฟังดูแล และติดตามประเมินซ้ำใน 1-2 สัปดาห์",
+        actionPlan: "แนะนำให้คนใกล้ชิด หรือพี่ ๆ ผู้ดูแล ใจดี (JaiDee Care) ช่วยรับฟังดูแล และติดตามประเมินซ้ำใน 1-2 สัปดาห์",
       };
     } else if (score <= 16) {
       return {
@@ -359,7 +359,7 @@ export default function AssessmentPage() {
         color: "bg-[#FAEBEE] border-[#F3D1D8] text-[#701E2D]",
         isUrgent: true,
         clinicalAdvice: "ต้องเฝ้าระวังอย่างใกล้ชิด คัดกรองและเก็บสิ่งของที่อาจเกิดอันตรายรอบตัว ไม่ควรอยู่คนเดียวตามลำพัง",
-        actionPlan: "ประสานพี่ ๆ ผู้ดูแล BaiMai Care หรือคุณครูเพื่อช่วยดูแล และนัดพบแพทย์/นักจิตวิทยาเพื่อวางแผนดูแลความปลอดภัยอย่างต่อเนื่อง",
+        actionPlan: "ประสานพี่ ๆ ผู้ดูแล ใจดี (JaiDee Care) หรือคุณครูเพื่อช่วยดูแล และนัดพบแพทย์/นักจิตวิทยาเพื่อวางแผนดูแลความปลอดภัยอย่างต่อเนื่อง",
       };
     } else {
       return {
@@ -896,21 +896,21 @@ export default function AssessmentPage() {
             )}
 
             {/* ==============================================================
-                BAIMAI CARE: USER DECISION & FOLLOW-UP SYNC
-                (สำหรับน้อง ๆ มัธยม และพี่ ๆ ผู้ดูแล BaiMai Care)
+                JAIDEE CARE: USER DECISION & FOLLOW-UP SYNC
+                (สำหรับน้อง ๆ มัธยม และพี่ ๆ ผู้ดูแล ใจดี)
                ============================================================== */}
             <div className="bg-white/95 rounded-3xl p-6 sm:p-7 border border-[#B8DCC8] shadow-xs space-y-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1">
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#E2F2E9] text-[#1B432E]">
                     <Sparkles size={12} />
-                    <span>พี่ ๆ ผู้ดูแล BaiMai Care (BaiMai Mentors)</span>
+                    <span>พี่ ๆ ผู้ดูแล ใจดี (JaiDee Mentors)</span>
                   </div>
                   <h3 className="text-base sm:text-lg font-bold text-[#333]">
                     ให้พี่ ๆ ผู้ดูแลคอยรับฟังและติดตามดูแลใจ 🌱
                   </h3>
                   <p className="text-xs text-[#7A7A7A] leading-relaxed">
-                    น้อง ๆ สามารถ <strong>ตัดสินใจได้ด้วยตนเอง</strong> ว่าต้องการให้พี่ ๆ ผู้ดูแล BaiMai ติดต่อกลับเพื่อพูดคุย รับฟัง และติดตามถามไถ่อาการอย่างอบอุ่นหรือไม่
+                    น้อง ๆ สามารถ <strong>ตัดสินใจได้ด้วยตนเอง</strong> ว่าต้องการให้พี่ ๆ ผู้ดูแล ใจดี ติดต่อกลับเพื่อพูดคุย รับฟัง และติดตามถามไถ่อาการอย่างอบอุ่นหรือไม่
                   </p>
                 </div>
               </div>
@@ -940,7 +940,7 @@ export default function AssessmentPage() {
                   </div>
                   <p className="text-xs leading-relaxed text-[#2C6244]">
                     รหัสเคสดูแลใจของน้องคือ: <strong className="font-mono bg-white px-2 py-0.5 rounded border border-[#B8DCC8] text-sm">{submittedTicket}</strong>
-                    <br />พี่ ๆ ผู้ดูแล BaiMai Care จะติดต่อกลับตามช่องทางที่น้องระบุอย่างอบอุ่นและเป็นความลับที่สุดนะ 🤍
+                    <br />พี่ ๆ ผู้ดูแล ใจดี (JaiDee Care) จะติดต่อกลับตามช่องทางที่น้องระบุอย่างอบอุ่นและเป็นความลับที่สุดนะ 🤍
                   </p>
                   
                   {/* Youth Hotlines */}
@@ -963,7 +963,7 @@ export default function AssessmentPage() {
                       <span>ให้พี่ ๆ ผู้ดูแลติดต่อกลับ (แนะนำ)</span>
                     </div>
                     <p className="text-[11px] text-[#666] mt-1 leading-relaxed">
-                      ยินยอมให้พี่ ๆ ผู้ดูแล BaiMai คอยรับฟัง ให้คำแนะนำ ช่วยเหลือ และติดตามถามไถ่อาการอย่างเป็นกันเอง
+                      ยินยอมให้พี่ ๆ ผู้ดูแล ใจดี คอยรับฟัง ให้คำแนะนำ ช่วยเหลือ และติดตามถามไถ่อาการอย่างเป็นกันเอง
                     </p>
                     <span className="inline-flex items-center gap-1 text-xs text-[#2F6B4A] font-medium mt-2 group-hover:translate-x-1 transition-transform">
                       <span>กรอกข้อมูลเพื่อพูดคุย</span>
@@ -978,7 +978,7 @@ export default function AssessmentPage() {
                       <span>รักษาความเป็นส่วนตัว (ไม่ส่งต่อ)</span>
                     </div>
                     <p className="text-[11px] text-[#888] mt-1 leading-relaxed">
-                      ผลการประเมินนี้จะอยู่เฉพาะในเบราว์เซอร์ของคุณ ไม่มีการส่งข้อมูลใด ๆ ออกจากเครื่อง สามารถใช้ฟีเจอร์ผ่อนคลายใน BaiMai ได้อย่างสบายใจ
+                      ผลการประเมินนี้จะอยู่เฉพาะในเบราว์เซอร์ของคุณ ไม่มีการส่งข้อมูลใด ๆ ออกจากเครื่อง สามารถใช้ฟีเจอร์ผ่อนคลายใน jaidee ได้อย่างสบายใจ
                     </p>
                   </div>
                 </div>
@@ -993,7 +993,7 @@ export default function AssessmentPage() {
                       <input
                         type="text"
                         required
-                        placeholder="เช่น น้องใบไม้, น้องมิน"
+                        placeholder="เช่น น้องใจดี, น้องมิน"
                         value={studentName}
                         onChange={(e) => setStudentName(e.target.value)}
                         className="w-full px-3.5 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs focus:outline-none focus:border-[#779988]"
@@ -1073,14 +1073,14 @@ export default function AssessmentPage() {
                   <div className="p-3.5 rounded-xl bg-[#FFFDF8] border border-[#E8DFC9] flex items-start gap-2.5">
                     <input
                       type="checkbox"
-                      id="baimai-care-consent"
+                      id="jaidee-care-consent"
                       required
                       checked={consentGiven}
                       onChange={(e) => setConsentGiven(e.target.checked)}
                       className="mt-0.5 accent-[#2F6B4A]"
                     />
-                    <label htmlFor="baimai-care-consent" className="text-xs text-[#555] leading-relaxed cursor-pointer select-none">
-                      ยินยอมให้ <strong>พี่ ๆ ผู้ดูแล BaiMai Care</strong> บันทึกผลประเมินและติดต่อกลับตามช่องทางที่ระบุ เพื่อคอยรับฟัง ให้คำแนะนำ และติดตามถามไถ่สุขภาพใจอย่างเป็นกันเองและปลอดภัย
+                    <label htmlFor="jaidee-care-consent" className="text-xs text-[#555] leading-relaxed cursor-pointer select-none">
+                      ยินยอมให้ <strong>พี่ ๆ ผู้ดูแล ใจดี (JaiDee Care)</strong> บันทึกผลประเมินและติดต่อกลับตามช่องทางที่ระบุ เพื่อคอยรับฟัง ให้คำแนะนำ และติดตามถามไถ่สุขภาพใจอย่างเป็นกันเองและปลอดภัย
                     </label>
                   </div>
 
@@ -1106,10 +1106,10 @@ export default function AssessmentPage() {
               )}
             </div>
 
-            {/* Quick Actions in BaiMai */}
+            {/* Quick Actions in jaidee */}
             <div className="bg-white/90 rounded-3xl p-6 border border-[#EFEAE1] shadow-xs space-y-3">
               <h4 className="text-xs font-semibold text-[#888] uppercase tracking-wider">
-                สิ่งที่คุณสามารถทำต่อได้ใน BaiMai:
+                สิ่งที่คุณสามารถทำต่อได้ใน jaidee (ใจดี):
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">

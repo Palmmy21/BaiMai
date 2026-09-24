@@ -55,11 +55,11 @@ function mapFromSupabase(row) {
 
 // Security: Fixed caregiver passcode & secure session token
 const FIXED_COUNSELOR_PASSCODE = (process.env.COUNSELOR_PASSCODE || "baimai2026").trim();
-const SECURE_SESSION_TOKEN = "baimai_care_session_secure";
-const VALID_AUTH_TOKENS = [SECURE_SESSION_TOKEN, FIXED_COUNSELOR_PASSCODE];
+const SECURE_SESSION_TOKEN = "jaidee_care_session_secure";
+const VALID_AUTH_TOKENS = [SECURE_SESSION_TOKEN, "baimai_care_session_secure", FIXED_COUNSELOR_PASSCODE];
 
 // In-memory brute-force rate limiter for caregiver login (persists across Next.js reloads)
-const failedLoginMap = globalThis.__baimai_failed_logins || (globalThis.__baimai_failed_logins = new Map());
+const failedLoginMap = globalThis.__jaidee_failed_logins || (globalThis.__jaidee_failed_logins = new Map());
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MS = 60 * 1000; // 60 seconds lockout
 
@@ -76,7 +76,7 @@ export async function GET(request) {
       return NextResponse.json(
         { 
           success: false, 
-          message: "ไม่ได้รับอนุญาต: พื้นที่ข้อมูลชั้นความลับ กรุณายืนยันรหัสผ่านพี่ ๆ ผู้ดูแล BaiMai" 
+          message: "ไม่ได้รับอนุญาต: พื้นที่ข้อมูลชั้นความลับ กรุณายืนยันรหัสผ่านพี่ ๆ ผู้ดูแล ใจดี (JaiDee Care)" 
         }, 
         { status: 401 }
       );
@@ -156,7 +156,7 @@ export async function POST(request) {
         return NextResponse.json({
           success: true,
           token: SECURE_SESSION_TOKEN,
-          message: "เข้าสู่ระบบสำเร็จ ยินดีต้อนรับพี่ ๆ ผู้ดูแล BaiMai Care 🌱",
+          message: "เข้าสู่ระบบสำเร็จ ยินดีต้อนรับพี่ ๆ ผู้ดูแล ใจดี (JaiDee Care) 🌱",
         });
       }
 
@@ -179,7 +179,7 @@ export async function POST(request) {
       const message = willLock
         ? `คุณใส่รหัสผ่านผิดติดต่อกันครบ ${MAX_FAILED_ATTEMPTS} ครั้งแล้ว ระบบถูกระงับชั่วคราว 60 วินาทีเพื่อความปลอดภัย`
         : remainingAttempts > 0
-          ? `รหัสผ่านไม่ถูกต้อง (หากลืมรหัสผ่าน กรุณาติดต่อผู้ดูแลระบบ BaiMai Care — เหลือโอกาสอีก ${remainingAttempts} ครั้ง)`
+          ? `รหัสผ่านไม่ถูกต้อง (หากลืมรหัสผ่าน กรุณาติดต่อผู้ดูแลระบบ JaiDee Care — เหลือโอกาสอีก ${remainingAttempts} ครั้ง)`
           : `รหัสผ่านไม่ถูกต้อง ระบบกำลังระงับการเข้าสู่ระบบชั่วคราว`;
 
       return NextResponse.json(
@@ -317,7 +317,7 @@ export async function PATCH(request) {
           if (note) {
             updatedNotes.push({
               date: new Date().toISOString(),
-              author: counselorName || "พี่ ๆ ผู้ดูแล BaiMai",
+              author: counselorName || "พี่ ๆ ผู้ดูแล ใจดี",
               text: note,
             });
           }
@@ -341,7 +341,7 @@ export async function PATCH(request) {
               if (note) {
                 list[idx].counselorNotes.push({
                   date: new Date().toISOString(),
-                  author: counselorName || "พี่ ๆ ผู้ดูแล BaiMai",
+                  author: counselorName || "พี่ ๆ ผู้ดูแล ใจดี",
                   text: note,
                 });
                 list[idx].lastFollowUp = new Date().toISOString();
@@ -368,7 +368,7 @@ export async function PATCH(request) {
     if (note) {
       list[index].counselorNotes.push({
         date: new Date().toISOString(),
-        author: counselorName || "พี่ ๆ ผู้ดูแล BaiMai",
+        author: counselorName || "พี่ ๆ ผู้ดูแล ใจดี",
         text: note,
       });
       list[index].lastFollowUp = new Date().toISOString();
@@ -388,7 +388,7 @@ export async function DELETE(request) {
       return NextResponse.json(
         { 
           success: false, 
-          message: "ไม่ได้รับอนุญาต: ต้องยืนยันรหัสผ่านพี่ ๆ ผู้ดูแล BaiMai ก่อนลบข้อมูล" 
+          message: "ไม่ได้รับอนุญาต: ต้องยืนยันรหัสผ่านพี่ ๆ ผู้ดูแล ใจดี (JaiDee Care) ก่อนลบข้อมูล" 
         }, 
         { status: 401 }
       );

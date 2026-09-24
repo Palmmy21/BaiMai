@@ -54,13 +54,13 @@ export default function Navbar() {
           </span>
           <div className="flex flex-col">
             <span className="font-semibold text-lg tracking-wide text-[#3A3A3A] flex items-center gap-1.5">
-              BaiMai
+              jaidee
               <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-[#E2F2E9] text-[#2F6B4A]">
-                ใบไม้
+                ใจดี
               </span>
             </span>
             <span className="text-[10px] text-[#8A8A8A] hidden sm:block -mt-0.5">
-              อารมณ์คือใบไม้ ที่สักวันจะร่วงหล่น
+              ใจดีกับตัวเอง • พื้นที่ปลอดภัยสำหรับใจคุณ
             </span>
           </div>
         </Link>

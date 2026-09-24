@@ -19,21 +19,21 @@ const maliFont = Mali({
 });
 
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://baimai.vercel.app"),
-  title: "BaiMai (ใบไม้) — พื้นที่เล็ก ๆ สำหรับปล่อยความรู้สึก",
-  description: "อารมณ์คือใบไม้ ที่สักวันจะร่วงหล่น... พื้นที่ปลอดภัย 100% สำหรับการเขียนระบายสิ่งที่อยู่ในใจ ฝึกหายใจ และเช็กสุขภาพใจตนเอง 🌱",
-  keywords: ["BaiMai", "ใบไม้", "สุขภาพจิต", "ระบายความรู้สึก", "ปล่อยความรู้สึก", "ฝึกหายใจ", "safe space", "มัธยม"],
-  authors: [{ name: "BaiMai Care Team" }],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://jaidee.vercel.app"),
+  title: "jaidee (ใจดี) — พื้นที่เล็ก ๆ สำหรับปล่อยความรู้สึกและใจดีกับตัวเอง",
+  description: "jaidee (ใจดี) พื้นที่ปลอดภัย 100% สำหรับการเขียนระบายสิ่งที่อยู่ในใจ ฝึกหายใจ และเช็กสุขภาพใจตนเอง ใจดีกับตัวเองในทุกวัน 🌱",
+  keywords: ["jaidee", "ใจดี", "สุขภาพจิต", "ระบายความรู้สึก", "ปล่อยความรู้สึก", "ฝึกหายใจ", "safe space", "มัธยม"],
+  authors: [{ name: "JaiDee Care Team" }],
   openGraph: {
-    title: "BaiMai (ใบไม้) — พื้นที่เล็ก ๆ สำหรับปล่อยความรู้สึก",
-    description: "อารมณ์คือใบไม้ ที่สักวันจะร่วงหล่น... พื้นที่ปลอดภัยสำหรับการเขียนระบายสิ่งที่อยู่ในใจ และดูแลใจตนเอง 🌱",
-    siteName: "BaiMai (ใบไม้)",
+    title: "jaidee (ใจดี) — พื้นที่เล็ก ๆ สำหรับปล่อยความรู้สึกและใจดีกับตัวเอง",
+    description: "jaidee (ใจดี) พื้นที่ปลอดภัยสำหรับการเขียนระบายสิ่งที่อยู่ในใจ และดูแลใจตนเอง 🌱",
+    siteName: "jaidee (ใจดี)",
     images: [
       {
         url: "/og-cover.jpg",
         width: 1200,
         height: 630,
-        alt: "BaiMai (ใบไม้) — พื้นที่ปลอดภัยสำหรับใจคุณ",
+        alt: "jaidee (ใจดี) — พื้นที่ปลอดภัยสำหรับใจคุณ",
       },
     ],
     locale: "th_TH",
@@ -41,8 +41,8 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "BaiMai (ใบไม้) — พื้นที่เล็ก ๆ สำหรับปล่อยความรู้สึก",
-    description: "อารมณ์คือใบไม้ ที่สักวันจะร่วงหล่น... พื้นที่ปลอดภัยสำหรับการเขียนระบายสิ่งที่อยู่ในใจ และดูแลใจตนเอง 🌱",
+    title: "jaidee (ใจดี) — พื้นที่เล็ก ๆ สำหรับปล่อยความรู้สึกและใจดีกับตัวเอง",
+    description: "jaidee (ใจดี) พื้นที่ปลอดภัยสำหรับการเขียนระบายสิ่งที่อยู่ในใจ และดูแลใจตนเอง 🌱",
     images: ["/og-cover.jpg"],
   },
   icons: {
@@ -67,9 +67,9 @@ export default function RootLayout({ children }) {
         <footer className="hidden md:block border-t border-[#F0ECE1] py-8 text-center text-xs text-[#8A8A8A] bg-[#FFFDF8]/60">
           <div className="max-w-4xl mx-auto px-4 space-y-2">
             <p className="flex items-center justify-center gap-1.5 text-sm font-medium text-[#4A4A4A]">
-              <span>🍃 BaiMai (ใบไม้)</span>
+              <span>🍃 jaidee (ใจดี)</span>
               <span>•</span>
-              <span className="text-xs text-[#7A7A7A]">“อารมณ์คือใบไม้ ที่สักวันจะร่วงหล่น”</span>
+              <span className="text-xs text-[#7A7A7A]">“ใจดีกับตัวเอง... ในวันที่โลกใจร้าย”</span>
             </p>
             <p className="text-[12px] text-[#9A9A9A]">
               🔒 ข้อความระบายของคุณทำงานบนเบราว์เซอร์เท่านั้น ไม่มีการจัดเก็บข้อมูลลงฐานข้อมูล ปลอดภัย 100%

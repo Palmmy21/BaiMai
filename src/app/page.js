@@ -20,7 +20,7 @@ export default function Home() {
           className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs bg-[#E2F2E9] text-[#245238] font-medium border border-[#B8DCC8]"
         >
           <span>🍃</span>
-          <span>BaiMai — อารมณ์คือใบไม้ ที่สักวันจะร่วงหล่น</span>
+          <span>jaidee (ใจดี) — อารมณ์คือใบไม้ ที่สักวันจะร่วงหล่น</span>
         </motion.div>
 
         {/* Hero Title & Subtitle */}

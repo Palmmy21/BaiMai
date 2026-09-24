@@ -37,7 +37,7 @@ export default function CounselorPortalPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCase, setSelectedCase] = useState(null);
   const [noteText, setNoteText] = useState("");
-  const [counselorName, setCounselorName] = useState("พี่ ๆ ผู้ดูแล BaiMai");
+  const [counselorName, setCounselorName] = useState("พี่ ๆ ผู้ดูแล ใจดี");
   const [updating, setUpdating] = useState(false);
 
   // Authentication State
@@ -54,13 +54,17 @@ export default function CounselorPortalPage() {
   // Check saved session and active lockouts on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const saved = sessionStorage.getItem("baimai_care_auth");
+      const saved = sessionStorage.getItem("jaidee_care_auth") || sessionStorage.getItem("baimai_care_auth");
       if (saved) {
         setAuthToken(saved);
         setIsAuthenticated(true);
         fetchFollowups(saved);
       }
-      const lockUntil = Number(sessionStorage.getItem("baimai_care_lockout_until") || 0);
+      const lockUntil = Number(
+        sessionStorage.getItem("jaidee_care_lockout_until") || 
+        sessionStorage.getItem("baimai_care_lockout_until") || 
+        0
+      );
       const now = Date.now();
       if (lockUntil > now) {
         setCooldown(Math.ceil((lockUntil - now) / 1000));
@@ -76,6 +80,7 @@ export default function CounselorPortalPage() {
       setCooldown((prev) => {
         if (prev <= 1) {
           if (typeof window !== "undefined") {
+            sessionStorage.removeItem("jaidee_care_lockout_until");
             sessionStorage.removeItem("baimai_care_lockout_until");
           }
           setAuthError("");
@@ -129,7 +134,9 @@ export default function CounselorPortalPage() {
 
       if (data.success && data.token) {
         if (typeof window !== "undefined") {
+          sessionStorage.setItem("jaidee_care_auth", data.token);
           sessionStorage.setItem("baimai_care_auth", data.token);
+          sessionStorage.removeItem("jaidee_care_lockout_until");
           sessionStorage.removeItem("baimai_care_lockout_until");
         }
         setAuthToken(data.token);
@@ -143,13 +150,14 @@ export default function CounselorPortalPage() {
         if (data.isLocked && data.cooldownSeconds) {
           const lockUntil = Date.now() + data.cooldownSeconds * 1000;
           if (typeof window !== "undefined") {
+            sessionStorage.setItem("jaidee_care_lockout_until", lockUntil.toString());
             sessionStorage.setItem("baimai_care_lockout_until", lockUntil.toString());
           }
           setCooldown(data.cooldownSeconds);
           setAuthError(data.message || `ใส่รหัสผ่านผิดเกินกำหนด กรุณารอ ${data.cooldownSeconds} วินาที`);
         } else {
           setFailedAttempts((prev) => prev + 1);
-          setAuthError(data.message || "รหัสผ่านไม่ถูกต้อง (หากลืมรหัสผ่าน กรุณาติดต่อผู้ดูแลระบบ BaiMai Care)");
+          setAuthError(data.message || "รหัสผ่านไม่ถูกต้อง (หากลืมรหัสผ่าน กรุณาติดต่อผู้ดูแลระบบ JaiDee Care)");
         }
       }
     } catch (err) {
@@ -163,6 +171,7 @@ export default function CounselorPortalPage() {
   // Logout handler
   const handleLogout = () => {
     if (typeof window !== "undefined") {
+      sessionStorage.removeItem("jaidee_care_auth");
       sessionStorage.removeItem("baimai_care_auth");
       sessionStorage.removeItem("msu_counselor_auth");
     }
@@ -320,13 +329,13 @@ export default function CounselorPortalPage() {
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-[#E2F2E9] text-[#1B432E] border border-[#B8DCC8]">
               <ShieldCheck size={12} />
-              <span>พื้นที่ดูแลน้อง ๆ (สำหรับพี่ ๆ ผู้ดูแล BaiMai Care)</span>
+              <span>พื้นที่ดูแลน้อง ๆ (สำหรับพี่ ๆ ผู้ดูแล JaiDee Care)</span>
             </div>
             <h1 className="text-lg sm:text-xl font-bold text-[#333] pt-1">
-              เข้าสู่ระบบดูแลน้อง ๆ BaiMai Care
+              เข้าสู่ระบบดูแลน้อง ๆ JaiDee Care
             </h1>
             <p className="text-xs text-[#7A7A7A] leading-relaxed">
-              สำหรับพี่ ๆ ผู้ดูแล BaiMai Care กรุณาระบุรหัสผ่านเพื่อเข้าถึงข้อมูลการดูแลและติดตามถามไถ่สุขภาพใจของน้อง ๆ
+              สำหรับพี่ ๆ ผู้ดูแล JaiDee Care กรุณาระบุรหัสผ่านเพื่อเข้าถึงข้อมูลการดูแลและติดตามถามไถ่สุขภาพใจของน้อง ๆ
             </p>
           </div>
 
@@ -343,7 +352,7 @@ export default function CounselorPortalPage() {
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-[#555] flex items-center justify-between">
                 <span>รหัสผ่านพี่ ๆ ผู้ดูแล / PIN</span>
-                <span className="text-[10px] text-[#888] font-normal">BaiMai Caregiver Passcode</span>
+                <span className="text-[10px] text-[#888] font-normal">JaiDee Caregiver Passcode</span>
               </label>
 
               <div className="relative">
@@ -383,7 +392,7 @@ export default function CounselorPortalPage() {
                 </div>
               ) : (
                 <p className="text-[11px] text-[#8A8A8A] pt-0.5">
-                  🛡️ ข้อมูลเฉพาะพี่ ๆ ผู้ดูแล BaiMai เพื่อความปลอดภัยของข้อมูลน้อง ๆ
+                  🛡️ ข้อมูลเฉพาะพี่ ๆ ผู้ดูแล ใจดี เพื่อความปลอดภัยของข้อมูลน้อง ๆ
                 </p>
               )}
             </div>
@@ -425,7 +434,7 @@ export default function CounselorPortalPage() {
               className="inline-flex items-center gap-1 text-xs text-[#7A7A7A] hover:text-[#333] transition-colors"
             >
               <ArrowLeft size={13} />
-              <span>กลับสู่หน้าหลัก BaiMai</span>
+              <span>กลับสู่หน้าหลัก jaidee (ใจดี)</span>
             </Link>
           </div>
         </div>
@@ -459,7 +468,7 @@ export default function CounselorPortalPage() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-semibold text-[#3A3A3A] tracking-tight">
-                  ระบบดูแลน้อง ๆ BaiMai Care
+                  ระบบดูแลน้อง ๆ JaiDee Care
                 </h1>
                 <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#E2F2E9] text-[#1B432E] border border-[#B8DCC8]">
                   <ShieldCheck size={11} />
@@ -467,7 +476,7 @@ export default function CounselorPortalPage() {
                 </span>
               </div>
               <p className="text-xs text-[#7A7A7A]">
-                พื้นที่บันทึกและติดตามดูแลสุขภาวะใจสำหรับพี่ ๆ ผู้ดูแล BaiMai Care
+                พื้นที่บันทึกและติดตามดูแลสุขภาวะใจสำหรับพี่ ๆ ผู้ดูแล JaiDee Care
               </p>
             </div>
           </div>
