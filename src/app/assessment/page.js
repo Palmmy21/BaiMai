@@ -6,7 +6,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { 
   Heart, 
-  ShieldAlert, 
   PhoneCall, 
   ArrowRight, 
   RotateCcw, 
@@ -15,7 +14,6 @@ import {
   Feather,
   Wind,
   Sparkles,
-  Info,
   Send,
   Zap,
   ArrowLeft,
@@ -83,7 +81,6 @@ const getST5Guidance = (score) => {
     color = "bg-[#F5E6E8] border-[#EAA8B4] text-[#8C1D2F]";
   }
 
-  // คำแนะนำตามเอกสารเป๊ะๆ
   let adviceTitle = "";
   let adviceItems = [];
 
@@ -120,7 +117,6 @@ const QUESTIONS_2Q = [
   },
 ];
 
-// แปลผล 2Q อิงตามเอกสารทางการ
 const get2QGuidance = (answers) => {
   const values = Object.values(answers);
   const score = values.filter(Boolean).length;
@@ -165,7 +161,6 @@ const OPTIONS_9Q = [
   { label: "มีแทบทุกวัน", sub: "3 คะแนน", score: 3 },
 ];
 
-// แปลผลและคำแนะนำ 9Q อิงตามเอกสารทางการ
 const get9QGuidance = (score) => {
   if (score <= 6) {
     return {
@@ -273,7 +268,6 @@ const QUESTIONS_8Q = [
   },
 ];
 
-// แปลผลและคำแนะนำ 8Q อิงตามเอกสารทางการ
 const get8QGuidance = (score) => {
   if (score === 0) {
     return {
@@ -327,18 +321,12 @@ const get8QGuidance = (score) => {
 };
 
 export default function AssessmentPage() {
-  // Stage state: "intro" | "ST5" | "2Q" | "2Q_to_9Q" | "9Q" | "9Q_to_8Q" | "8Q" | "final_result"
   const [stage, setStage] = useState("intro");
-  // Flow mode: "full" (ST-5 -> 2Q -> 9Q -> 8Q) | "st5_only" | "depression_only"
   const [flowMode, setFlowMode] = useState("full");
-  // Final assessment reached that determines the recommendation displayed
-  // "ST5" | "9Q" | "8Q"
   const [finalAssessment, setFinalAssessment] = useState("ST5");
-
-  // Tab mode on Intro: "full" | "st5" | "depression"
   const [introTab, setIntroTab] = useState("full");
 
-  // State ST-5 (แบบประเมินความเครียด 5 ข้อ)
+  // State ST-5
   const [answersST5, setAnswersST5] = useState({});
   const [indexST5, setIndexST5] = useState(0);
 
@@ -358,7 +346,7 @@ export default function AssessmentPage() {
   // Accordion for viewing full official criteria in result screen
   const [showAllCriteria, setShowAllCriteria] = useState(false);
 
-  // BaiMai Care Follow-up Sync State (สำหรับน้อง ๆ)
+  // JaiDee Care Follow-up Sync State
   const [careFollowupOpen, setCareFollowupOpen] = useState(false);
   const [studentName, setStudentName] = useState("");
   const [gradeLevel, setGradeLevel] = useState(GRADE_LEVELS[0]);
@@ -370,7 +358,6 @@ export default function AssessmentPage() {
   const [submittingFollowup, setSubmittingFollowup] = useState(false);
   const [submittedTicket, setSubmittedTicket] = useState(null);
 
-  // URL query parameter support (?mode=st5, ?mode=full, ?mode=depression)
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -385,7 +372,6 @@ export default function AssessmentPage() {
     }
   }, []);
 
-  // Restart All
   const handleRestart = () => {
     setStage("intro");
     setFlowMode("full");
@@ -403,9 +389,6 @@ export default function AssessmentPage() {
     setSubmittedTicket(null);
   };
 
-  // -------------------------------------------------------------
-  // ST-5 Handler (ประเมินความเครียด 5 ข้อ)
-  // -------------------------------------------------------------
   const handleSelectST5 = (score) => {
     const updated = { ...answersST5, [indexST5]: score };
     setAnswersST5(updated);
@@ -414,13 +397,11 @@ export default function AssessmentPage() {
     if (indexST5 < QUESTIONS_ST5.length - 1) {
       setIndexST5(indexST5 + 1);
     } else {
-      // Finished ST-5!
       if (flowMode === "st5_only") {
         setFinalAssessment("ST5");
         setStage("final_result");
         soundManager.playHealingChime(587.33);
       } else {
-        // Core flow: ST-5 followed by 2Q
         setStage("2Q");
         setIndex2Q(0);
         soundManager.playHealingChime(528);
@@ -431,9 +412,6 @@ export default function AssessmentPage() {
   const totalScoreST5 = Object.values(answersST5).reduce((a, b) => a + b, 0);
   const st5Guidance = getST5Guidance(totalScoreST5);
 
-  // -------------------------------------------------------------
-  // 2Q Handler (เช็กอารมณ์ 2 ข้อ)
-  // -------------------------------------------------------------
   const handleSelect2Q = (hasSymptom) => {
     const updated = { ...answers2Q, [index2Q]: hasSymptom };
     setAnswers2Q(updated);
@@ -442,16 +420,12 @@ export default function AssessmentPage() {
     if (index2Q < QUESTIONS_2Q.length - 1) {
       setIndex2Q(index2Q + 1);
     } else {
-      // 2Q completed!
       const hasRisk = Object.values(updated).some((v) => v === true);
       if (!hasRisk) {
-        // ไม่ถึงเกณฑ์ทำต่อของ 2Q (ตอบ "ไม่มี" ทั้ง 2 ข้อ = 0 คะแนน)
-        // ตามหมายเหตุ: "หาก ไม่ถึงเกณฑ์ทำต่อของ 2Q ให้แนะนำผ่านผลของ ST-5"
         setFinalAssessment("ST5");
         setStage("final_result");
         soundManager.playHealingChime(528);
       } else {
-        // ถึงเกณฑ์ 2Q (ตอบ "มี" 1 ข้อขึ้นไป) -> ชวนประเมิน 9Q ต่อ
         setStage("2Q_to_9Q");
         soundManager.playHealingChime(440);
       }
@@ -460,9 +434,6 @@ export default function AssessmentPage() {
 
   const q2Guidance = get2QGuidance(answers2Q);
 
-  // -------------------------------------------------------------
-  // 9Q Handler (ภาวะซึมเศร้า 9 ข้อ)
-  // -------------------------------------------------------------
   const handleSelect9Q = (score) => {
     const updated = { ...answers9Q, [index9Q]: score };
     setAnswers9Q(updated);
@@ -474,11 +445,9 @@ export default function AssessmentPage() {
       const total9Q = Object.values(updated).reduce((a, b) => a + b, 0);
       const q9HarmScore = updated[8] || 0;
       if (total9Q >= 7 || q9HarmScore > 0) {
-        // ถึงเกณฑ์ให้ทำ 8Q ต่อ
         setStage("9Q_to_8Q");
         soundManager.playHealingChime(440);
       } else {
-        // 0-6 คะแนน: ปกติ ไม่ถึงเกณฑ์ทำต่อ 8Q -> สิ้นสุดที่ 9Q
         setFinalAssessment("9Q");
         setStage("final_result");
         soundManager.playHealingChime(528);
@@ -489,9 +458,6 @@ export default function AssessmentPage() {
   const totalScore9Q = Object.values(answers9Q).reduce((a, b) => a + b, 0);
   const q9Guidance = get9QGuidance(totalScore9Q);
 
-  // -------------------------------------------------------------
-  // 8Q Handler (ความเสี่ยงต่อตนเอง 8 ข้อ)
-  // -------------------------------------------------------------
   const handleSelect8Q = (isYes) => {
     const q = QUESTIONS_8Q[index8Q];
     if (q.id === 3 && isYes) {
@@ -516,7 +482,6 @@ export default function AssessmentPage() {
     if (index8Q < QUESTIONS_8Q.length - 1) {
       setIndex8Q(index8Q + 1);
     } else {
-      // 8Q completed -> สิ้นสุดที่ 8Q
       setFinalAssessment("8Q");
       setStage("final_result");
       soundManager.playHealingChime(528);
@@ -531,7 +496,6 @@ export default function AssessmentPage() {
   const hasDone9Q = Object.keys(answers9Q).length > 0;
   const hasDone8Q = Object.keys(answers8Q).length > 0;
 
-  // Follow-up caregiver submit
   const handleFollowupSubmit = async (e) => {
     e.preventDefault();
     if (!studentName.trim() || !contact.trim() || !consentGiven) return;
@@ -570,165 +534,161 @@ export default function AssessmentPage() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-4 px-4 sm:px-6">
+    <div className="w-full max-w-2xl mx-auto pt-2 pb-28 sm:py-8 px-3 sm:px-6">
       {/* ==============================================================
-          MINIMAL HEADER WITH REFINED LOGO BADGE
+          RESPONSIVE HEADER WITH REFINED LOGO BADGE
          ============================================================== */}
-      <div className="text-center space-y-3 mb-6 w-full flex flex-col items-center">
-        {/* Subtle, elegant Ministry Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs bg-white/90 border border-[#E8DFC9] shadow-2xs text-[#4A4A4A] backdrop-blur-xs">
+      <div className="text-center space-y-2 sm:space-y-3 mb-4 sm:mb-6 w-full flex flex-col items-center">
+        {/* Compact, responsive Department Badge */}
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] sm:text-xs bg-white/90 border border-[#E8DFC9] shadow-2xs text-[#4A4A4A] backdrop-blur-xs max-w-full">
           <Image
             src="/Seal_of_the_Department_of_Mental_health.svg"
-            alt="ตราสัญลักษณ์กรมสุขภาพจิต"
-            width={20}
-            height={20}
-            className="w-4.5 h-4.5 object-contain"
+            alt="กรมสุขภาพจิต"
+            width={18}
+            height={18}
+            className="w-4 h-4 sm:w-4.5 sm:h-4.5 object-contain shrink-0"
             priority
           />
-          <span className="font-medium text-[#2F6B4A]">
-            อิงเกณฑ์มาตรฐาน กรมสุขภาพจิต (ST-5 / 2Q / 9Q / 8Q)
+          <span className="font-medium text-[#2F6B4A] truncate">
+            เกณฑ์มาตรฐาน กรมสุขภาพจิต (ST-5 / 2Q / 9Q / 8Q)
           </span>
         </div>
 
-        {/* Warm title */}
-        <h1 className="text-2xl sm:text-3xl font-semibold text-[#3A3A3A] tracking-tight">
+        {/* Warm title with responsive text size */}
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-[#3A3A3A] tracking-tight">
           ลองเช็กใจกันหน่อย 🌱
         </h1>
-        <p className="text-xs sm:text-sm text-[#7A7A7A] max-w-md mx-auto leading-relaxed">
-          พื้นที่ปลอดภัยสำหรับหยุดฟังเสียงในใจ สังเกตความตึงเครียด ภาวะอารมณ์ และความปลอดภัยต่อตนเองอย่างอ่อนโยน
+        <p className="text-xs sm:text-sm text-[#7A7A7A] max-w-md mx-auto leading-relaxed px-2">
+          พื้นที่ปลอดภัยสำหรับหยุดฟังเสียงในใจ สังเกตความตึงเครียด ภาวะอารมณ์ และความปลอดภัยต่อตนเอง
         </p>
       </div>
 
       <AnimatePresence mode="wait">
         {/* ==============================================================
-            STAGE: INTRO
+            STAGE: INTRO (Highly Responsive, Compact, No Overlap)
            ============================================================== */}
         {stage === "intro" && (
           <motion.div
             key="intro"
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97 }}
-            className="w-full bg-white/90 rounded-3xl p-6 sm:p-8 border border-[#EFEAE1] shadow-xs space-y-6"
+            exit={{ opacity: 0, scale: 0.98 }}
+            className="w-full bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#EFEAE1] shadow-xs space-y-4 sm:space-y-5"
           >
-            {/* Tabs for choosing entry path */}
-            <div className="flex p-1 rounded-2xl bg-[#F4EFE6] border border-[#E8DFC9] w-full text-xs">
+            {/* Responsive Segmented Tabs Bar (No wrapping disaster on mobile!) */}
+            <div className="grid grid-cols-3 p-1 rounded-2xl bg-[#F4EFE6] border border-[#E8DFC9] w-full text-xs">
               <button
                 type="button"
                 onClick={() => setIntroTab("full")}
-                className={`flex-1 py-2 px-3 rounded-xl font-medium transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                className={`py-2 px-1 sm:px-3 rounded-xl font-medium transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 text-center ${
                   introTab === "full"
                     ? "bg-white text-[#245238] shadow-xs font-semibold"
                     : "text-[#666] hover:text-[#222]"
                 }`}
               >
-                <Sparkles size={13} className={introTab === "full" ? "text-[#2F6B4A]" : "text-[#888]"} />
-                <span>ประเมินครบวงจร (ST-5 + 2Q)</span>
+                <Sparkles size={13} className={introTab === "full" ? "text-[#2F6B4A] shrink-0" : "text-[#888] shrink-0"} />
+                <span className="text-[11px] sm:text-xs leading-tight whitespace-nowrap">
+                  <span className="hidden sm:inline">ประเมินครบชุด (ST-5 + 2Q)</span>
+                  <span className="sm:hidden">ครบชุด (แนะนำ)</span>
+                </span>
               </button>
+
               <button
                 type="button"
                 onClick={() => setIntroTab("st5")}
-                className={`flex-1 py-2 px-3 rounded-xl font-medium transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                className={`py-2 px-1 sm:px-3 rounded-xl font-medium transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 text-center ${
                   introTab === "st5"
                     ? "bg-white text-[#245238] shadow-xs font-semibold"
                     : "text-[#666] hover:text-[#222]"
                 }`}
               >
-                <Zap size={13} className={introTab === "st5" ? "text-[#E08736]" : "text-[#888]"} />
-                <span>วัดความเครียด (ST-5)</span>
+                <Zap size={13} className={introTab === "st5" ? "text-[#E08736] shrink-0" : "text-[#888] shrink-0"} />
+                <span className="text-[11px] sm:text-xs leading-tight whitespace-nowrap">
+                  <span className="hidden sm:inline">วัดความเครียด (ST-5)</span>
+                  <span className="sm:hidden">ความเครียด</span>
+                </span>
               </button>
+
               <button
                 type="button"
                 onClick={() => setIntroTab("depression")}
-                className={`flex-1 py-2 px-3 rounded-xl font-medium transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                className={`py-2 px-1 sm:px-3 rounded-xl font-medium transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 text-center ${
                   introTab === "depression"
                     ? "bg-white text-[#245238] shadow-xs font-semibold"
                     : "text-[#666] hover:text-[#222]"
                 }`}
               >
-                <Heart size={13} className={introTab === "depression" ? "text-[#8C243B]" : "text-[#888]"} />
-                <span>สุขภาพใจ (2Q/9Q/8Q)</span>
+                <Heart size={13} className={introTab === "depression" ? "text-[#8C243B] shrink-0" : "text-[#888] shrink-0"} />
+                <span className="text-[11px] sm:text-xs leading-tight whitespace-nowrap">
+                  <span className="hidden sm:inline">สุขภาพใจ (2Q/9Q/8Q)</span>
+                  <span className="sm:hidden">สุขภาพใจ</span>
+                </span>
               </button>
             </div>
 
             {/* TAB 1: FULL UNIFIED ASSESSMENT (ST-5 + 2Q -> 9Q -> 8Q) */}
             {introTab === "full" && (
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E2F2E9] text-[#1B432E] border border-[#B8DCC8]">
-                    <Sparkles size={12} className="text-[#2F6B4A]" />
-                    <span>ลำดับขั้นตอนตามแนวทางมาตรฐาน กรมสุขภาพจิต</span>
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-medium bg-[#E2F2E9] text-[#1B432E] border border-[#B8DCC8]">
+                    <Sparkles size={11} className="text-[#2F6B4A]" />
+                    <span>แนวทางมาตรฐาน กรมสุขภาพจิต</span>
                   </div>
-                  <h2 className="text-base sm:text-lg font-semibold text-[#2D3748]">
+                  <h2 className="text-sm sm:text-base font-semibold text-[#2D3748]">
                     การประเมิน 2 แบบหลัก: ST-5 และ 2Q
                   </h2>
                   <p className="text-xs sm:text-sm text-[#555] leading-relaxed">
-                    คุณจะได้สำรวจทั้งความเครียดและอารมณ์ความรู้สึก หากพบสัญญาณความเสี่ยง ระบบจะพาทำแบบประเมินเชิงลึกต่อ และ<strong>คำแนะนำจะแสดงตามผลประเมินชุดสุดท้ายที่คุณทำถึง</strong>
+                    สำรวจทั้งความเครียดและอารมณ์ความรู้สึก หากพบสัญญาณความเสี่ยง ระบบจะพาทำแบบประเมินเชิงลึกต่อ และ<strong>คำแนะนำจะแสดงตามผลประเมินชุดสุดท้าย</strong>
                   </p>
                 </div>
 
-                {/* Step Roadmap */}
-                <div className="space-y-2.5 text-xs sm:text-sm">
-                  <div className="p-3.5 rounded-2xl bg-[#FFFDF8] border border-[#F0ECE1] flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-[#FDF7E5] text-[#855B14] font-medium text-xs flex items-center justify-center shrink-0 mt-0.5">
+                {/* Cohesive, compact Step Roadmap */}
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-[#FFFDF8] border border-[#EFEAE1] space-y-2.5">
+                  <div className="flex items-start gap-2.5 text-xs sm:text-sm">
+                    <span className="w-5 h-5 rounded-full bg-[#FDF7E5] text-[#855B14] font-semibold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
                       1
                     </span>
-                    <div>
-                      <p className="font-semibold text-[#333]">
-                        1. แบบประเมินความเครียด (ST-5)
-                      </p>
-                      <p className="text-[#7A7A7A] text-xs mt-0.5">
-                        คำถาม 5 ข้อ สำรวจอาการหรือความรู้สึกตึงเครียดในระยะ ๒ - ๔ สัปดาห์
+                    <div className="space-y-0.5">
+                      <p className="font-semibold text-[#333]">1. แบบประเมินความเครียด (ST-5)</p>
+                      <p className="text-[#7A7A7A] text-[11px] sm:text-xs leading-relaxed">
+                        คำถาม 5 ข้อ สำรวจอาการตึงเครียดในระยะ ๒ - ๔ สัปดาห์
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-[#FFFDF8] border border-[#F0ECE1] flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-[#E2F2E9] text-[#1B432E] font-medium text-xs flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="border-t border-[#F0ECE1] pt-2.5 flex items-start gap-2.5 text-xs sm:text-sm">
+                    <span className="w-5 h-5 rounded-full bg-[#E2F2E9] text-[#1B432E] font-semibold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
                       2
                     </span>
-                    <div>
-                      <p className="font-semibold text-[#333]">
-                        2. แบบคัดกรองเบื้องต้น (2Q)
-                      </p>
-                      <p className="text-[#7A7A7A] text-xs mt-0.5">
-                        คำถาม 2 ข้อ เพื่อสังเกตความรู้สึกเศร้าหรือหมดพลังในรอบ 2 สัปดาห์
+                    <div className="space-y-0.5">
+                      <p className="font-semibold text-[#333]">2. แบบคัดกรองเบื้องต้น (2Q)</p>
+                      <p className="text-[#7A7A7A] text-[11px] sm:text-xs leading-relaxed">
+                        คำถาม 2 ข้อ สังเกตความรู้สึกเศร้าหรือหมดพลังในรอบ 2 สัปดาห์
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-[#FFFDF8] border border-[#E8DFC9] flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-[#FAEBEE] text-[#8C243B] font-medium text-xs flex items-center justify-center shrink-0 mt-0.5">
-                      💡
-                    </span>
-                    <div className="text-xs text-[#555] leading-relaxed">
-                      <p className="font-semibold text-[#333]">
-                        หมายเหตุเกณฑ์การประเมินและคำแนะนำ:
-                      </p>
-                      <p className="mt-0.5">
-                        • หาก 2Q ถึงเกณฑ์ จะเริ่มทำ <strong>9Q</strong> ต่อ<br />
-                        • หาก 9Q ถึงเกณฑ์ จะทำ <strong>8Q</strong> ต่อ<br />
-                        • <strong>คำแนะนำจะขึ้นของผลประเมินสุดท้าย</strong> (หากไม่ถึงเกณฑ์ทำต่อของ 2Q ให้แนะนำผ่านผลของ ST-5)
-                      </p>
-                    </div>
+                  <div className="bg-[#FAEBEE]/60 border border-[#F3D1D8] p-2.5 rounded-xl text-[11px] text-[#701E2D] leading-relaxed">
+                    💡 <strong>หมายเหตุ:</strong> หาก 2Q ถึงเกณฑ์จะทำ 9Q และ 8Q ต่อ คำแนะนำจะขึ้นตามผลประเมินสุดท้าย (หากไม่ถึงเกณฑ์ทำต่อของ 2Q ให้แนะนำผ่านผลของ ST-5)
                   </div>
                 </div>
 
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#F0ECE1]">
+                {/* Primary CTA Button */}
+                <div className="pt-1 flex flex-col sm:flex-row items-center justify-between gap-2.5">
                   <button
                     onClick={() => {
                       setFlowMode("full");
                       setStage("ST5");
                       setIndexST5(0);
                     }}
-                    className="w-full sm:w-auto px-8 py-3 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1B432E] font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-xs active:scale-95 cursor-pointer"
+                    className="w-full sm:w-auto px-7 py-3 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1B432E] font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs active:scale-95 cursor-pointer"
                   >
                     <span>เริ่มทำแบบประเมิน (ST-5 และ 2Q)</span>
-                    <ArrowRight size={16} />
+                    <ArrowRight size={15} />
                   </button>
 
-                  <span className="text-xs text-[#8A8A8A]">
-                    ใช้เวลาประมาณ 1 - 2 นาที
+                  <span className="text-[11px] sm:text-xs text-[#8A8A8A]">
+                    ใช้เวลาประมาณ 1 - 2 นาที • ปลอดภัย 100%
                   </span>
                 </div>
               </div>
@@ -736,57 +696,56 @@ export default function AssessmentPage() {
 
             {/* TAB 2: ST-5 ONLY */}
             {introTab === "st5" && (
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#FDF7E5] text-[#5C4D20] border border-[#F7E6B5]">
-                    <Zap size={12} className="text-[#E08736]" />
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-medium bg-[#FDF7E5] text-[#5C4D20] border border-[#F7E6B5]">
+                    <Zap size={11} className="text-[#E08736]" />
                     <span>แบบประเมินความเครียด (ST-5)</span>
                   </div>
-                  <h2 className="text-base sm:text-lg font-semibold text-[#2D3748]">
+                  <h2 className="text-sm sm:text-base font-semibold text-[#2D3748]">
                     แบบประเมินความเครียด (ST-5)
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#555] leading-relaxed bg-[#FFFDF8] p-4 rounded-2xl border border-[#F0ECE1]">
+                  <p className="text-xs sm:text-sm text-[#555] leading-relaxed bg-[#FFFDF8] p-3 sm:p-4 rounded-2xl border border-[#F0ECE1]">
                     ความเครียดเกิดขึ้นได้กับทุกคน สาเหตุที่ทำให้เกิดความเครียดมีหลายอย่าง เช่น รายได้ที่ไม่เพียงพอ หนี้สิน ภัยพิบัติต่างๆ ที่ทำให้เกิดความสูญเสีย ความเจ็บป่วย เป็นต้น ความเครียดมีทั้งประโยชน์และโทษ หากมากเกินไปจะเกิดผลเสียต่อร่างกายและจิตใจของท่านได้ ขอให้ท่านลองประเมินตนเองโดยให้คะแนน ๐ - ๓ ที่ตรงกับความรู้สึกของท่าน
                   </p>
                 </div>
 
-                {/* Score rating criteria from document */}
-                <div className="p-4 rounded-2xl bg-[#FFFDF8] border border-[#E8DFC9] space-y-2.5">
-                  <div className="flex items-center justify-between text-xs font-semibold text-[#333] border-b border-[#F0ECE1] pb-1.5">
+                <div className="p-3 sm:p-4 rounded-2xl bg-[#FFFDF8] border border-[#E8DFC9] space-y-2">
+                  <div className="flex items-center justify-between text-xs font-semibold text-[#333] border-b border-[#F0ECE1] pb-1">
                     <span>เกณฑ์การให้คะแนน (0 - 3 คะแนน):</span>
-                    <span className="text-[#888] font-normal">ระยะ ๒ - ๔ สัปดาห์</span>
+                    <span className="text-[#888] font-normal text-[11px]">ระยะ ๒ - ๔ สัปดาห์</span>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                    <div className="p-2.5 rounded-xl bg-white border border-[#EFEAE1] text-center">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 text-xs">
+                    <div className="p-2 rounded-xl bg-white border border-[#EFEAE1] text-center">
                       <div className="font-bold text-[#245238]">คะแนน ๐</div>
-                      <div className="text-[11px] text-[#555] mt-0.5">เป็นน้อยมากหรือแทบไม่มี</div>
+                      <div className="text-[10px] sm:text-[11px] text-[#555] mt-0.5">เป็นน้อยมากหรือแทบไม่มี</div>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-white border border-[#EFEAE1] text-center">
+                    <div className="p-2 rounded-xl bg-white border border-[#EFEAE1] text-center">
                       <div className="font-bold text-[#5C4D20]">คะแนน ๑</div>
-                      <div className="text-[11px] text-[#555] mt-0.5">เป็นบางครั้ง</div>
+                      <div className="text-[10px] sm:text-[11px] text-[#555] mt-0.5">เป็นบางครั้ง</div>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-white border border-[#EFEAE1] text-center">
+                    <div className="p-2 rounded-xl bg-white border border-[#EFEAE1] text-center">
                       <div className="font-bold text-[#B45309]">คะแนน ๒</div>
-                      <div className="text-[11px] text-[#555] mt-0.5">เป็นบ่อยครั้ง</div>
+                      <div className="text-[10px] sm:text-[11px] text-[#555] mt-0.5">เป็นบ่อยครั้ง</div>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-white border border-[#EFEAE1] text-center">
+                    <div className="p-2 rounded-xl bg-white border border-[#EFEAE1] text-center">
                       <div className="font-bold text-[#DC2626]">คะแนน ๓</div>
-                      <div className="text-[11px] text-[#555] mt-0.5">เป็นประจำ</div>
+                      <div className="text-[10px] sm:text-[11px] text-[#555] mt-0.5">เป็นประจำ</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#F0ECE1]">
+                <div className="pt-1 flex flex-col sm:flex-row items-center justify-between gap-2.5">
                   <button
                     onClick={() => {
                       setFlowMode("st5_only");
                       setStage("ST5");
                       setIndexST5(0);
                     }}
-                    className="w-full sm:w-auto px-8 py-3 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1B432E] font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-xs active:scale-95 cursor-pointer"
+                    className="w-full sm:w-auto px-7 py-3 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1B432E] font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs active:scale-95 cursor-pointer"
                   >
                     <span>ทำเฉพาะแบบประเมิน ST-5 (5 ข้อ)</span>
-                    <ArrowRight size={16} />
+                    <ArrowRight size={15} />
                   </button>
 
                   <button
@@ -802,13 +761,13 @@ export default function AssessmentPage() {
 
             {/* TAB 3: DEPRESSION ONLY (2Q / 9Q / 8Q) */}
             {introTab === "depression" && (
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#FAEBEE] text-[#8C243B] border border-[#F3D1D8]">
-                    <Heart size={12} className="text-[#8C243B]" />
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-medium bg-[#FAEBEE] text-[#8C243B] border border-[#F3D1D8]">
+                    <Heart size={11} className="text-[#8C243B]" />
                     <span>แบบประเมินสุขภาพใจ (2Q / 9Q / 8Q)</span>
                   </div>
-                  <h2 className="text-base sm:text-lg font-semibold text-[#2D3748]">
+                  <h2 className="text-sm sm:text-base font-semibold text-[#2D3748]">
                     แบบคัดกรองเบื้องต้นและสำรวจภาวะซึมเศร้า
                   </h2>
                   <p className="text-xs sm:text-sm text-[#555] leading-relaxed">
@@ -816,17 +775,17 @@ export default function AssessmentPage() {
                   </p>
                 </div>
 
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#F0ECE1]">
+                <div className="pt-1 flex flex-col sm:flex-row items-center justify-between gap-2.5">
                   <button
                     onClick={() => {
                       setFlowMode("depression_only");
                       setStage("2Q");
                       setIndex2Q(0);
                     }}
-                    className="w-full sm:w-auto px-8 py-3 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1B432E] font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-xs active:scale-95 cursor-pointer"
+                    className="w-full sm:w-auto px-7 py-3 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1B432E] font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs active:scale-95 cursor-pointer"
                   >
                     <span>เริ่มจากแบบคัดกรอง 2Q</span>
-                    <ArrowRight size={16} />
+                    <ArrowRight size={15} />
                   </button>
 
                   <button
@@ -854,17 +813,16 @@ export default function AssessmentPage() {
             initial={{ opacity: 0, x: 15 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -15 }}
-            className="w-full bg-white/90 rounded-3xl p-6 sm:p-8 border border-[#EFEAE1] shadow-xs space-y-6"
+            className="w-full bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#EFEAE1] shadow-xs space-y-4 sm:space-y-5"
           >
             <div className="flex items-center justify-between text-xs text-[#8A8A8A]">
-              <span className="font-medium text-[#245238] bg-[#E2F2E9] px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <Zap size={12} className="text-[#2F6B4A]" />
+              <span className="font-medium text-[#245238] bg-[#E2F2E9] px-2.5 py-0.5 rounded-full flex items-center gap-1 text-[11px] sm:text-xs">
+                <Zap size={11} className="text-[#2F6B4A]" />
                 <span>แบบประเมินความเครียด (ST-5)</span>
               </span>
               <span>ข้อ {indexST5 + 1} จาก 5</span>
             </div>
 
-            {/* Progress bar */}
             <div className="w-full bg-[#EFEAE1]/50 h-1.5 rounded-full overflow-hidden">
               <div
                 className="bg-[#2F6B4A] h-full transition-all duration-300"
@@ -872,35 +830,34 @@ export default function AssessmentPage() {
               />
             </div>
 
-            <div className="space-y-1.5 pt-1">
-              <div className="inline-block text-[11px] px-2.5 py-0.5 rounded-md bg-[#FFFDF8] border border-[#E8DFC9] text-[#7A7A7A]">
+            <div className="space-y-1 pt-1">
+              <div className="inline-block text-[10px] sm:text-[11px] px-2.5 py-0.5 rounded-md bg-[#FFFDF8] border border-[#E8DFC9] text-[#7A7A7A]">
                 อาการหรือความรู้สึกที่เกิดในระยะ <strong>๒ - ๔ สัปดาห์</strong>
               </div>
-              <h2 className="text-base sm:text-lg font-medium text-[#2D3748] leading-relaxed pt-1">
+              <h2 className="text-sm sm:text-base md:text-lg font-medium text-[#2D3748] leading-relaxed pt-1">
                 {QUESTIONS_ST5[indexST5].question}
               </h2>
             </div>
 
-            {/* 4 Choices from document */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            {/* 4 Choices */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 pt-1">
               {OPTIONS_ST5.map((opt, i) => (
                 <button
                   key={i}
                   onClick={() => handleSelectST5(opt.score)}
-                  className="p-4 rounded-2xl border border-[#EFEAE1] hover:border-[#2F6B4A] hover:bg-[#E2F2E9]/40 text-left transition-all flex items-center justify-between group active:scale-[0.99] cursor-pointer"
+                  className="p-3 sm:p-4 rounded-2xl border border-[#EFEAE1] hover:border-[#2F6B4A] hover:bg-[#E2F2E9]/40 text-left transition-all flex items-center justify-between group active:scale-[0.99] cursor-pointer"
                 >
                   <div>
                     <div className="text-xs sm:text-sm font-medium text-[#333]">{opt.label}</div>
-                    <div className="text-[11px] text-[#888]">{opt.sub}</div>
+                    <div className="text-[10px] sm:text-[11px] text-[#888]">{opt.sub}</div>
                   </div>
-                  <span className="text-xs text-[#2F6B4A] font-mono opacity-0 group-hover:opacity-100">
+                  <span className="text-xs text-[#2F6B4A] font-mono opacity-0 group-hover:opacity-100 shrink-0 ml-2">
                     เลือก →
                   </span>
                 </button>
               ))}
             </div>
 
-            {/* Navigation back */}
             <div className="flex items-center justify-between pt-2 border-t border-[#F0ECE1] text-xs">
               {indexST5 > 0 ? (
                 <button
@@ -933,11 +890,11 @@ export default function AssessmentPage() {
             initial={{ opacity: 0, x: 15 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -15 }}
-            className="w-full bg-white/90 rounded-3xl p-6 sm:p-8 border border-[#EFEAE1] shadow-xs space-y-6"
+            className="w-full bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#EFEAE1] shadow-xs space-y-4 sm:space-y-5"
           >
             <div className="flex items-center justify-between text-xs text-[#8A8A8A]">
-              <span className="font-medium text-[#245238] bg-[#E2F2E9] px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <Heart size={12} className="text-[#2F6B4A]" />
+              <span className="font-medium text-[#245238] bg-[#E2F2E9] px-2.5 py-0.5 rounded-full flex items-center gap-1 text-[11px] sm:text-xs">
+                <Heart size={11} className="text-[#2F6B4A]" />
                 <span>แบบคัดกรองเบื้องต้น (2Q)</span>
               </span>
               <span>ข้อ {index2Q + 1} จาก 2</span>
@@ -950,25 +907,25 @@ export default function AssessmentPage() {
               />
             </div>
 
-            <div className="space-y-1.5 pt-1">
-              <div className="inline-block text-[11px] px-2.5 py-0.5 rounded-md bg-[#FFFDF8] border border-[#E8DFC9] text-[#7A7A7A]">
+            <div className="space-y-1 pt-1">
+              <div className="inline-block text-[10px] sm:text-[11px] px-2.5 py-0.5 rounded-md bg-[#FFFDF8] border border-[#E8DFC9] text-[#7A7A7A]">
                 ระยะเวลา: <strong>ในช่วง 2 สัปดาห์ที่ผ่านมารวมวันนี้</strong>
               </div>
-              <h2 className="text-base sm:text-lg font-medium text-[#2D3748] leading-relaxed pt-1">
+              <h2 className="text-sm sm:text-base md:text-lg font-medium text-[#2D3748] leading-relaxed pt-1">
                 {QUESTIONS_2Q[index2Q].question}
               </h2>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-2">
               <button
                 onClick={() => handleSelect2Q(false)}
-                className="p-4 rounded-2xl border border-[#EFEAE1] hover:border-[#B8DCC8] hover:bg-[#E2F2E9]/40 text-center font-medium text-sm sm:text-base text-[#4A4A4A] transition-all active:scale-[0.98] cursor-pointer"
+                className="p-3.5 sm:p-4 rounded-2xl border border-[#EFEAE1] hover:border-[#B8DCC8] hover:bg-[#E2F2E9]/40 text-center font-medium text-xs sm:text-base text-[#4A4A4A] transition-all active:scale-[0.98] cursor-pointer"
               >
                 ไม่มี (0 คะแนน)
               </button>
               <button
                 onClick={() => handleSelect2Q(true)}
-                className="p-4 rounded-2xl border border-[#F3D1D8] hover:border-[#EAA8B4] hover:bg-[#FAEBEE]/60 text-center font-medium text-sm sm:text-base text-[#8C243B] transition-all active:scale-[0.98] cursor-pointer"
+                className="p-3.5 sm:p-4 rounded-2xl border border-[#F3D1D8] hover:border-[#EAA8B4] hover:bg-[#FAEBEE]/60 text-center font-medium text-xs sm:text-base text-[#8C243B] transition-all active:scale-[0.98] cursor-pointer"
               >
                 มี (1 คะแนน)
               </button>
@@ -998,18 +955,18 @@ export default function AssessmentPage() {
         )}
 
         {/* ==============================================================
-            STAGE: 2Q TO 9Q TRANSITIONAL PROMPT (เมื่อ 2Q ถึงเกณฑ์)
+            STAGE: 2Q TO 9Q TRANSITIONAL PROMPT
            ============================================================== */}
         {stage === "2Q_to_9Q" && (
           <motion.div
             key="2Q_to_9Q"
-            initial={{ opacity: 0, scale: 0.97 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full bg-white/90 rounded-3xl p-6 sm:p-8 border border-[#F3D1D8] shadow-xs space-y-6"
+            className="w-full bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#F3D1D8] shadow-xs space-y-4 sm:space-y-5"
           >
-            <div className="p-6 rounded-2xl bg-[#FAEBEE] border border-[#F3D1D8] text-[#701E2D] space-y-3">
-              <div className="flex items-center gap-2 font-semibold text-lg text-[#8C1D2F]">
-                <AlertTriangle size={22} />
+            <div className="p-4 sm:p-6 rounded-2xl bg-[#FAEBEE] border border-[#F3D1D8] text-[#701E2D] space-y-2.5">
+              <div className="flex items-center gap-2 font-semibold text-base sm:text-lg text-[#8C1D2F]">
+                <AlertTriangle size={20} />
                 <span>ผลการคัดกรองเบื้องต้น (2Q)</span>
               </div>
               <div className="space-y-1 text-xs sm:text-sm leading-relaxed">
@@ -1023,16 +980,16 @@ export default function AssessmentPage() {
               เพื่อให้เข้าใจระดับความรู้สึกที่กำลังเผชิญอย่างชัดเจนและได้รับคำแนะนำที่ตรงจุด ขอชวนทำแบบสำรวจภาวะซึมเศร้า (9Q) ต่ออีก 9 ข้อสั้น ๆ นะครับ 🌱
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-[#F0ECE1]">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-2 border-t border-[#F0ECE1]">
               <button
                 onClick={() => {
                   setStage("9Q");
                   setIndex9Q(0);
                 }}
-                className="w-full sm:w-auto px-8 py-3 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1B432E] font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-xs active:scale-95 cursor-pointer"
+                className="w-full sm:w-auto px-7 py-3 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1B432E] font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs active:scale-95 cursor-pointer"
               >
                 <span>ทำแบบประเมิน 9Q ต่อ</span>
-                <ArrowRight size={16} />
+                <ArrowRight size={15} />
               </button>
 
               <button
@@ -1057,10 +1014,10 @@ export default function AssessmentPage() {
             initial={{ opacity: 0, x: 15 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -15 }}
-            className="w-full bg-white/90 rounded-3xl p-6 sm:p-8 border border-[#EFEAE1] shadow-xs space-y-6"
+            className="w-full bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#EFEAE1] shadow-xs space-y-4 sm:space-y-5"
           >
             <div className="flex items-center justify-between text-xs text-[#8A8A8A]">
-              <span className="font-medium text-[#701E2D] bg-[#FAEBEE] px-2.5 py-0.5 rounded-full">
+              <span className="font-medium text-[#701E2D] bg-[#FAEBEE] px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs">
                 สำรวจภาวะซึมเศร้า (9Q)
               </span>
               <span>ข้อ {index9Q + 1} จาก 9</span>
@@ -1074,27 +1031,26 @@ export default function AssessmentPage() {
             </div>
 
             <div className="space-y-1 pt-1">
-              <p className="text-xs text-[#8A8A8A]">
+              <p className="text-[11px] sm:text-xs text-[#8A8A8A]">
                 ในช่วง 2 สัปดาห์ที่ผ่านมารวมวันนี้ คุณมีความรู้สึกเหล่านี้บ่อยแค่ไหน?
               </p>
-              <h2 className="text-base sm:text-lg font-medium text-[#2D3748] leading-relaxed">
+              <h2 className="text-sm sm:text-base md:text-lg font-medium text-[#2D3748] leading-relaxed">
                 {QUESTIONS_9Q[index9Q].question}
               </h2>
             </div>
 
-            {/* 4 Choices */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 pt-1">
               {OPTIONS_9Q.map((opt, i) => (
                 <button
                   key={i}
                   onClick={() => handleSelect9Q(opt.score)}
-                  className="p-3.5 rounded-2xl border border-[#EFEAE1] hover:border-[#D97706] hover:bg-[#FDF7E5]/50 text-left transition-all flex items-center justify-between group active:scale-[0.99] cursor-pointer"
+                  className="p-3 sm:p-3.5 rounded-2xl border border-[#EFEAE1] hover:border-[#D97706] hover:bg-[#FDF7E5]/50 text-left transition-all flex items-center justify-between group active:scale-[0.99] cursor-pointer"
                 >
                   <div>
                     <div className="text-xs sm:text-sm font-medium text-[#333]">{opt.label}</div>
-                    <div className="text-[11px] text-[#888]">{opt.sub}</div>
+                    <div className="text-[10px] sm:text-[11px] text-[#888]">{opt.sub}</div>
                   </div>
-                  <span className="text-xs text-[#D97706] font-mono opacity-0 group-hover:opacity-100">
+                  <span className="text-xs text-[#D97706] font-mono opacity-0 group-hover:opacity-100 shrink-0 ml-2">
                     เลือก →
                   </span>
                 </button>
@@ -1125,42 +1081,42 @@ export default function AssessmentPage() {
         )}
 
         {/* ==============================================================
-            STAGE: 9Q TO 8Q TRANSITIONAL PROMPT (เมื่อ 9Q ถึงเกณฑ์)
+            STAGE: 9Q TO 8Q TRANSITIONAL PROMPT
            ============================================================== */}
         {stage === "9Q_to_8Q" && (
           <motion.div
             key="9Q_to_8Q"
-            initial={{ opacity: 0, scale: 0.97 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full bg-white/90 rounded-3xl p-6 sm:p-8 border border-[#F3D1D8] shadow-xs space-y-6"
+            className="w-full bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#F3D1D8] shadow-xs space-y-4 sm:space-y-5"
           >
-            <div className={`p-6 rounded-2xl border ${q9Guidance.color} space-y-3`}>
+            <div className={`p-4 sm:p-6 rounded-2xl border ${q9Guidance.color} space-y-2.5`}>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider">
                   ผลการประเมิน 9Q
                 </span>
-                <span className="text-base font-bold">
+                <span className="text-sm sm:text-base font-bold">
                   {totalScore9Q} / 27 คะแนน
                 </span>
               </div>
-              <h3 className="text-lg font-bold">
+              <h3 className="text-base sm:text-lg font-bold">
                 {q9Guidance.level}
               </h3>
               <p className="text-xs sm:text-sm leading-relaxed">
-                ตามแนวทางมาตรฐาน เมื่อแบบ 9Q ถึงเกณฑ์ (มีอาการซึมเศร้า หรือมีความคิดอ่อนล้าต่อชีวิต) ขอชวนทำแบบสำรวจ 8Q สั้น ๆ เพื่อดูแลความปลอดภัยของใจและให้คำแนะนำที่โอบกอดคุณอย่างดีที่สุด
+                ตามแนวทางมาตรฐาน เมื่อแบบ 9Q ถึงเกณฑ์ ขอชวนทำแบบสำรวจ 8Q สั้น ๆ เพื่อดูแลความปลอดภัยของใจและให้คำแนะนำที่โอบกอดคุณอย่างดีที่สุด
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-[#F0ECE1]">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-2 border-t border-[#F0ECE1]">
               <button
                 onClick={() => {
                   setStage("8Q");
                   setIndex8Q(0);
                 }}
-                className="w-full sm:w-auto px-8 py-3 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1B432E] font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-xs active:scale-95 cursor-pointer"
+                className="w-full sm:w-auto px-7 py-3 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1B432E] font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs active:scale-95 cursor-pointer"
               >
                 <span>ทำแบบสำรวจ 8Q ต่อ</span>
-                <ArrowRight size={16} />
+                <ArrowRight size={15} />
               </button>
 
               <button
@@ -1185,11 +1141,11 @@ export default function AssessmentPage() {
             initial={{ opacity: 0, x: 15 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -15 }}
-            className="w-full bg-white/90 rounded-3xl p-6 sm:p-8 border border-[#F3D1D8] shadow-xs space-y-6"
+            className="w-full bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#F3D1D8] shadow-xs space-y-4 sm:space-y-5"
           >
             <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-[#8C1D2F] bg-[#FAEBEE] px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <Heart size={13} className="text-[#C53030]" />
+              <span className="font-semibold text-[#8C1D2F] bg-[#FAEBEE] px-2.5 py-0.5 rounded-full flex items-center gap-1 text-[11px] sm:text-xs">
+                <Heart size={11} className="text-[#C53030]" />
                 <span>แบบสำรวจ 8Q</span>
               </span>
               <span className="text-[#888]">ข้อ {index8Q + 1} จาก 8</span>
@@ -1202,21 +1158,21 @@ export default function AssessmentPage() {
               />
             </div>
 
-            <div className="inline-block text-[11px] px-2.5 py-0.5 rounded-md bg-[#FFFDF8] border border-[#E8DFC9] text-[#7A7A7A]">
+            <div className="inline-block text-[10px] sm:text-[11px] px-2.5 py-0.5 rounded-md bg-[#FFFDF8] border border-[#E8DFC9] text-[#7A7A7A]">
               ระยะเวลา: <strong>{QUESTIONS_8Q[index8Q].period}</strong>
             </div>
 
-            <h2 className="text-base sm:text-lg font-medium text-[#701E2D] leading-relaxed">
+            <h2 className="text-sm sm:text-base md:text-lg font-medium text-[#701E2D] leading-relaxed">
               {QUESTIONS_8Q[index8Q].question}
             </h2>
 
             {/* Sub Question for Question 3 */}
             {subQ3Open ? (
-              <div className="p-4 rounded-2xl bg-[#FAEBEE] border border-[#EAA8B4] space-y-3 animate-in fade-in duration-200">
+              <div className="p-3 sm:p-4 rounded-2xl bg-[#FAEBEE] border border-[#EAA8B4] space-y-2.5 animate-in fade-in duration-200">
                 <p className="text-xs sm:text-sm font-medium text-[#701E2D] leading-relaxed">
                   {QUESTIONS_8Q[2].subQuestion}
                 </p>
-                <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="grid grid-cols-2 gap-2.5 pt-1">
                   <button
                     onClick={() => handleSubQ3Answer(false)}
                     className="p-3 rounded-xl bg-white border border-[#EFEAE1] hover:border-[#B8DCC8] hover:bg-[#E2F2E9]/50 text-center font-medium text-xs sm:text-sm text-[#444] cursor-pointer"
@@ -1232,16 +1188,16 @@ export default function AssessmentPage() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-2">
                 <button
                   onClick={() => handleSelect8Q(false)}
-                  className="p-4 rounded-2xl border border-[#EFEAE1] hover:bg-[#E2F2E9]/40 text-center font-medium text-sm sm:text-base text-[#444] transition-all active:scale-[0.98] cursor-pointer"
+                  className="p-3.5 sm:p-4 rounded-2xl border border-[#EFEAE1] hover:bg-[#E2F2E9]/40 text-center font-medium text-xs sm:text-base text-[#444] transition-all active:scale-[0.98] cursor-pointer"
                 >
                   ไม่มี (0 คะแนน)
                 </button>
                 <button
                   onClick={() => handleSelect8Q(true)}
-                  className="p-4 rounded-2xl border border-[#F3D1D8] bg-[#FAEBEE]/40 hover:bg-[#FAEBEE] text-center font-semibold text-sm sm:text-base text-[#C53030] transition-all active:scale-[0.98] cursor-pointer"
+                  className="p-3.5 sm:p-4 rounded-2xl border border-[#F3D1D8] bg-[#FAEBEE]/40 hover:bg-[#FAEBEE] text-center font-semibold text-xs sm:text-base text-[#C53030] transition-all active:scale-[0.98] cursor-pointer"
                 >
                   มี ({QUESTIONS_8Q[index8Q].scoreYes} คะแนน)
                 </button>
@@ -1277,9 +1233,9 @@ export default function AssessmentPage() {
         {stage === "final_result" && (
           <motion.div
             key="final_result"
-            initial={{ opacity: 0, scale: 0.96 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full space-y-6"
+            className="w-full space-y-4 sm:space-y-5"
           >
             {/* Header info bar */}
             <div className="flex items-center justify-between p-3 rounded-2xl bg-white/90 border border-[#E8DFC9] text-xs">
@@ -1287,52 +1243,52 @@ export default function AssessmentPage() {
                 <Image
                   src="/Seal_of_the_Department_of_Mental_health.svg"
                   alt="กรมสุขภาพจิต"
-                  width={20}
-                  height={20}
-                  className="w-5 h-5 object-contain"
+                  width={18}
+                  height={18}
+                  className="w-4.5 h-4.5 object-contain shrink-0"
                 />
-                <span className="font-medium text-[#2F6B4A]">
-                  ผลการประเมินและคำแนะนำสุขภาพใจ (อิงเอกสารทางการ กรมสุขภาพจิต)
+                <span className="font-medium text-[#2F6B4A] text-[11px] sm:text-xs">
+                  ผลการประเมินและคำแนะนำสุขภาพใจ (เกณฑ์มาตรฐาน กรมสุขภาพจิต)
                 </span>
               </div>
-              <span className="text-[10px] text-[#245238] bg-[#E2F2E9] px-2.5 py-0.5 rounded-full font-medium">
+              <span className="text-[10px] text-[#245238] bg-[#E2F2E9] px-2 py-0.5 rounded-full font-medium shrink-0">
                 ปลอดภัย 100%
               </span>
             </div>
 
-            {/* 1. HERO GUIDANCE CARD (คำแนะนำของผลประเมินสุดท้าย ตามหมายเหตุเอกสาร) */}
-            <div className="bg-white/95 rounded-3xl p-6 sm:p-8 border border-[#EFEAE1] shadow-xs space-y-5">
-              <div className="flex items-center justify-between text-xs text-[#8A8A8A] border-b border-[#F0ECE1] pb-3">
-                <span className="font-semibold text-[#245238] bg-[#E2F2E9] px-3 py-1 rounded-full flex items-center gap-1.5">
-                  <Sparkles size={13} />
+            {/* 1. HERO GUIDANCE CARD */}
+            <div className="bg-white/95 rounded-3xl p-4 sm:p-7 border border-[#EFEAE1] shadow-xs space-y-4">
+              <div className="flex items-center justify-between text-xs text-[#8A8A8A] border-b border-[#F0ECE1] pb-2.5">
+                <span className="font-semibold text-[#245238] bg-[#E2F2E9] px-2.5 py-0.5 rounded-full flex items-center gap-1.5 text-[11px] sm:text-xs">
+                  <Sparkles size={11} />
                   <span>
-                    ผลประเมินชุดสุดท้าย: {finalAssessment === "ST5" ? "แบบประเมินความเครียด (ST-5)" : finalAssessment === "9Q" ? "แบบสำรวจภาวะซึมเศร้า (9Q)" : "แบบสำรวจความปลอดภัย (8Q)"}
+                    ผลประเมินชุดสุดท้าย: {finalAssessment === "ST5" ? "ST-5 (ความเครียด)" : finalAssessment === "9Q" ? "9Q (ซึมเศร้า)" : "8Q (ความปลอดภัย)"}
                   </span>
                 </span>
-                <span className="text-[11px] text-[#7A7A7A]">คำแนะนำอิงตามเอกสาร</span>
+                <span className="text-[10px] sm:text-[11px] text-[#7A7A7A]">คำแนะนำอิงตามเอกสาร</span>
               </div>
 
               {/* CARD FOR FINAL = ST5 */}
               {finalAssessment === "ST5" && (
-                <div className="space-y-4">
-                  <div className={`p-6 rounded-2xl border ${st5Guidance.color} space-y-2`}>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs uppercase tracking-wider font-semibold opacity-80">
+                <div className="space-y-3.5">
+                  <div className={`p-4 sm:p-5 rounded-2xl border ${st5Guidance.color} space-y-1.5`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
+                      <span className="text-[11px] uppercase tracking-wider font-semibold opacity-80">
                         ระดับความเครียด (ST-5)
                       </span>
-                      <span className="text-xl sm:text-2xl font-bold">
+                      <span className="text-lg sm:text-2xl font-bold">
                         {totalScoreST5} / 15 คะแนน
                       </span>
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-bold">
+                    <h3 className="text-lg sm:text-xl font-bold">
                       {st5Guidance.level} ({st5Guidance.range})
                     </h3>
                   </div>
 
                   {/* 2Q status note */}
                   {hasDone2Q && (
-                    <div className="p-3 rounded-xl bg-[#E2F2E9]/60 border border-[#B8DCC8] text-xs text-[#245238] flex items-center gap-2">
-                      <CheckCircle2 size={16} className="text-[#2F6B4A] shrink-0" />
+                    <div className="p-2.5 sm:p-3 rounded-xl bg-[#E2F2E9]/60 border border-[#B8DCC8] text-[11px] sm:text-xs text-[#245238] flex items-start sm:items-center gap-2 leading-relaxed">
+                      <CheckCircle2 size={15} className="text-[#2F6B4A] shrink-0 mt-0.5 sm:mt-0" />
                       <span>
                         <strong>แบบคัดกรอง 2Q:</strong> {q2Guidance.scoreText} — {q2Guidance.interpretation} (คำแนะนำจึงแสดงผ่านผลของ ST-5 ตามหมายเหตุเอกสาร)
                       </span>
@@ -1340,12 +1296,12 @@ export default function AssessmentPage() {
                   )}
 
                   {/* คำแนะนำตามเอกสารทางการ ST-5 */}
-                  <div className="p-5 rounded-2xl bg-[#FFFDF8] border border-[#E8DFC9] space-y-3">
+                  <div className="p-3.5 sm:p-4.5 rounded-2xl bg-[#FFFDF8] border border-[#E8DFC9] space-y-2.5">
                     <h4 className="font-bold text-xs sm:text-sm text-[#2F6B4A] flex items-center gap-1.5">
-                      <FileText size={15} />
+                      <FileText size={14} />
                       <span>{st5Guidance.adviceTitle}</span>
                     </h4>
-                    <div className="space-y-2 text-xs sm:text-sm text-[#333] leading-relaxed">
+                    <div className="space-y-1.5 text-xs sm:text-sm text-[#333] leading-relaxed">
                       {st5Guidance.adviceItems.map((item, idx) => (
                         <div key={idx} className="p-2.5 rounded-xl bg-white border border-[#EFEAE1] flex items-start gap-2">
                           <span className="text-[#2F6B4A] font-bold shrink-0">•</span>
@@ -1359,28 +1315,27 @@ export default function AssessmentPage() {
 
               {/* CARD FOR FINAL = 9Q */}
               {finalAssessment === "9Q" && (
-                <div className="space-y-4">
-                  <div className={`p-6 rounded-2xl border ${q9Guidance.color} space-y-2`}>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs uppercase tracking-wider font-semibold opacity-80">
+                <div className="space-y-3.5">
+                  <div className={`p-4 sm:p-5 rounded-2xl border ${q9Guidance.color} space-y-1.5`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
+                      <span className="text-[11px] uppercase tracking-wider font-semibold opacity-80">
                         ภาวะซึมเศร้า (9Q)
                       </span>
-                      <span className="text-xl sm:text-2xl font-bold">
+                      <span className="text-lg sm:text-2xl font-bold">
                         {totalScore9Q} / 27 คะแนน
                       </span>
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-bold">
+                    <h3 className="text-lg sm:text-xl font-bold">
                       {q9Guidance.level} ({q9Guidance.range})
                     </h3>
                   </div>
 
-                  {/* คำแนะนำตามเอกสารทางการ 9Q */}
-                  <div className="p-5 rounded-2xl bg-[#FFFDF8] border border-[#E8DFC9] space-y-3">
+                  <div className="p-3.5 sm:p-4.5 rounded-2xl bg-[#FFFDF8] border border-[#E8DFC9] space-y-2.5">
                     <h4 className="font-bold text-xs sm:text-sm text-[#701E2D] flex items-center gap-1.5">
-                      <FileText size={15} />
+                      <FileText size={14} />
                       <span>{q9Guidance.adviceTitle}</span>
                     </h4>
-                    <div className="space-y-2 text-xs sm:text-sm text-[#333] leading-relaxed">
+                    <div className="space-y-1.5 text-xs sm:text-sm text-[#333] leading-relaxed">
                       {q9Guidance.adviceItems.map((item, idx) => (
                         <div key={idx} className="p-2.5 rounded-xl bg-white border border-[#EFEAE1] flex items-start gap-2">
                           <span className="text-[#8C243B] font-bold shrink-0">•</span>
@@ -1394,28 +1349,27 @@ export default function AssessmentPage() {
 
               {/* CARD FOR FINAL = 8Q */}
               {finalAssessment === "8Q" && (
-                <div className="space-y-4">
-                  <div className={`p-6 rounded-2xl border ${q8Guidance.color} space-y-2`}>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs uppercase tracking-wider font-semibold opacity-80">
+                <div className="space-y-3.5">
+                  <div className={`p-4 sm:p-5 rounded-2xl border ${q8Guidance.color} space-y-1.5`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
+                      <span className="text-[11px] uppercase tracking-wider font-semibold opacity-80">
                         ความปลอดภัยต่อตนเอง (8Q)
                       </span>
-                      <span className="text-xl sm:text-2xl font-bold">
+                      <span className="text-lg sm:text-2xl font-bold">
                         {totalScore8Q} คะแนน
                       </span>
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-bold">
+                    <h3 className="text-lg sm:text-xl font-bold">
                       {q8Guidance.level} ({q8Guidance.range})
                     </h3>
                   </div>
 
-                  {/* คำแนะนำตามเอกสารทางการ 8Q */}
-                  <div className="p-5 rounded-2xl bg-[#FFFDF8] border border-[#E8DFC9] space-y-3">
+                  <div className="p-3.5 sm:p-4.5 rounded-2xl bg-[#FFFDF8] border border-[#E8DFC9] space-y-2.5">
                     <h4 className="font-bold text-xs sm:text-sm text-[#8C1D2F] flex items-center gap-1.5">
-                      <FileText size={15} />
+                      <FileText size={14} />
                       <span>{q8Guidance.adviceTitle}</span>
                     </h4>
-                    <div className="space-y-2 text-xs sm:text-sm text-[#333] leading-relaxed">
+                    <div className="space-y-1.5 text-xs sm:text-sm text-[#333] leading-relaxed">
                       {q8Guidance.adviceItems.map((item, idx) => (
                         <div key={idx} className="p-2.5 rounded-xl bg-white border border-[#EFEAE1] flex items-start gap-2">
                           <span className="text-[#C53030] font-bold shrink-0">•</span>
@@ -1429,15 +1383,14 @@ export default function AssessmentPage() {
             </div>
 
             {/* 2. OVERVIEW OF ALL ASSESSMENTS COMPLETED */}
-            <div className="bg-white/90 rounded-3xl p-6 border border-[#EFEAE1] shadow-xs space-y-3">
+            <div className="bg-white/90 rounded-3xl p-4 sm:p-6 border border-[#EFEAE1] shadow-xs space-y-2.5">
               <h4 className="text-xs font-bold text-[#444] flex items-center gap-1.5 uppercase tracking-wider">
                 <span>📋</span>
                 <span>สรุปผลการประเมินทุกชุดที่คุณทำ:</span>
               </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                {/* ST-5 summary pill */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                 {hasDoneST5 && (
-                  <div className={`p-3.5 rounded-2xl border flex items-center justify-between ${
+                  <div className={`p-3 rounded-2xl border flex items-center justify-between ${
                     finalAssessment === "ST5" ? "ring-2 ring-[#B8DCC8] bg-white font-medium" : "bg-[#FFFDF8] border-[#EFEAE1]"
                   }`}>
                     <div>
@@ -1451,9 +1404,8 @@ export default function AssessmentPage() {
                   </div>
                 )}
 
-                {/* 2Q summary pill */}
                 {hasDone2Q && (
-                  <div className="p-3.5 rounded-2xl border bg-[#FFFDF8] border-[#EFEAE1] flex items-center justify-between">
+                  <div className="p-3 rounded-2xl border bg-[#FFFDF8] border-[#EFEAE1] flex items-center justify-between">
                     <div>
                       <div className="text-[#666]">2Q (คัดกรองเบื้องต้น)</div>
                       <div className="font-bold text-[#333] mt-0.5">{q2Guidance.interpretation}</div>
@@ -1464,9 +1416,8 @@ export default function AssessmentPage() {
                   </div>
                 )}
 
-                {/* 9Q summary pill */}
                 {hasDone9Q && (
-                  <div className={`p-3.5 rounded-2xl border flex items-center justify-between ${
+                  <div className={`p-3 rounded-2xl border flex items-center justify-between ${
                     finalAssessment === "9Q" ? "ring-2 ring-[#F7E6B5] bg-white font-medium" : "bg-[#FFFDF8] border-[#EFEAE1]"
                   }`}>
                     <div>
@@ -1480,9 +1431,8 @@ export default function AssessmentPage() {
                   </div>
                 )}
 
-                {/* 8Q summary pill */}
                 {hasDone8Q && (
-                  <div className={`p-3.5 rounded-2xl border flex items-center justify-between ${
+                  <div className={`p-3 rounded-2xl border flex items-center justify-between ${
                     finalAssessment === "8Q" ? "ring-2 ring-[#F3D1D8] bg-white font-medium" : "bg-[#FFFDF8] border-[#EFEAE1]"
                   }`}>
                     <div>
@@ -1503,93 +1453,89 @@ export default function AssessmentPage() {
               <button
                 type="button"
                 onClick={() => setShowAllCriteria(!showAllCriteria)}
-                className="w-full p-4.5 text-left text-xs sm:text-sm font-semibold text-[#444] flex items-center justify-between hover:bg-[#F7EEDD]/50 transition-colors cursor-pointer"
+                className="w-full p-3.5 sm:p-4 text-left text-xs sm:text-sm font-semibold text-[#444] flex items-center justify-between hover:bg-[#F7EEDD]/50 transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-2">
-                  <FileText size={16} className="text-[#2F6B4A]" />
-                  <span>ดูเกณฑ์การแปลผลตามเอกสารทางการทั้งหมด (ST-5, 2Q, 9Q, 8Q)</span>
+                  <FileText size={15} className="text-[#2F6B4A]" />
+                  <span>ดูเกณฑ์การแปลผลตามเอกสารทางการทั้งหมด</span>
                 </div>
                 {showAllCriteria ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </button>
 
               {showAllCriteria && (
-                <div className="p-5 pt-0 space-y-4 border-t border-[#F0ECE1] text-xs">
-                  {/* ST-5 Table */}
+                <div className="p-4 pt-0 space-y-3.5 border-t border-[#F0ECE1] text-xs">
                   <div className="space-y-1.5 pt-3">
                     <p className="font-bold text-[#245238]">1. เกณฑ์แบบประเมินความเครียด (ST-5):</p>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-center">
                       <div className="p-2 rounded-lg bg-white border border-[#EFEAE1]">
                         <div className="font-bold text-[#245238]">0–4 คะแนน</div>
-                        <div className="text-[11px] text-[#666]">น้อย</div>
+                        <div className="text-[10px] text-[#666]">น้อย</div>
                       </div>
                       <div className="p-2 rounded-lg bg-white border border-[#EFEAE1]">
                         <div className="font-bold text-[#5C4D20]">5–7 คะแนน</div>
-                        <div className="text-[11px] text-[#666]">ปานกลาง</div>
+                        <div className="text-[10px] text-[#666]">ปานกลาง</div>
                       </div>
                       <div className="p-2 rounded-lg bg-white border border-[#EFEAE1]">
                         <div className="font-bold text-[#B45309]">8–9 คะแนน</div>
-                        <div className="text-[11px] text-[#666]">มาก</div>
+                        <div className="text-[10px] text-[#666]">มาก</div>
                       </div>
                       <div className="p-2 rounded-lg bg-white border border-[#EFEAE1]">
                         <div className="font-bold text-[#DC2626]">10–15 คะแนน</div>
-                        <div className="text-[11px] text-[#666]">มากที่สุด</div>
+                        <div className="text-[10px] text-[#666]">มากที่สุด</div>
                       </div>
                     </div>
                   </div>
 
-                  {/* 2Q Table */}
                   <div className="space-y-1.5">
                     <p className="font-bold text-[#245238]">2. เกณฑ์แบบคัดกรองเบื้องต้น (2Q):</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                      <div className="p-2.5 rounded-lg bg-white border border-[#EFEAE1]">
+                      <div className="p-2 rounded-lg bg-white border border-[#EFEAE1]">
                         <div className="font-bold text-[#245238]">0 คะแนน (ตอบ &quot;ไม่มี&quot; ทั้ง 2 ข้อ)</div>
-                        <div className="text-[11px] text-[#666]">ปกติ ไม่มีความเสี่ยงต่อภาวะซึมเศร้าในขณะนี้</div>
+                        <div className="text-[10px] text-[#666]">ปกติ ไม่มีความเสี่ยงต่อภาวะซึมเศร้าในขณะนี้</div>
                       </div>
-                      <div className="p-2.5 rounded-lg bg-white border border-[#EFEAE1]">
+                      <div className="p-2 rounded-lg bg-white border border-[#EFEAE1]">
                         <div className="font-bold text-[#8C1D2F]">1 คะแนนขึ้นไป (ตอบ &quot;มี&quot; ข้อใดข้อหนึ่งหรือทั้ง 2 ข้อ)</div>
-                        <div className="text-[11px] text-[#666]">เป็นผู้มีความเสี่ยงหรือมีแนวโน้มภาวะซึมเศร้า (ทำ 9Q ต่อ)</div>
+                        <div className="text-[10px] text-[#666]">เป็นผู้มีความเสี่ยงหรือมีแนวโน้มภาวะซึมเศร้า (ทำ 9Q ต่อ)</div>
                       </div>
                     </div>
                   </div>
 
-                  {/* 9Q Table */}
                   <div className="space-y-1.5">
                     <p className="font-bold text-[#245238]">3. เกณฑ์แบบสำรวจภาวะซึมเศร้า (9Q):</p>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-center">
                       <div className="p-2 rounded-lg bg-white border border-[#EFEAE1]">
                         <div className="font-bold text-[#245238]">0–6 คะแนน</div>
-                        <div className="text-[11px] text-[#666]">ปกติ</div>
+                        <div className="text-[10px] text-[#666]">ปกติ</div>
                       </div>
                       <div className="p-2 rounded-lg bg-white border border-[#EFEAE1]">
                         <div className="font-bold text-[#5C4D20]">7–12 คะแนน</div>
-                        <div className="text-[11px] text-[#666]">น้อย</div>
+                        <div className="text-[10px] text-[#666]">น้อย</div>
                       </div>
                       <div className="p-2 rounded-lg bg-white border border-[#EFEAE1]">
                         <div className="font-bold text-[#B45309]">13–18 คะแนน</div>
-                        <div className="text-[11px] text-[#666]">ปานกลาง</div>
+                        <div className="text-[10px] text-[#666]">ปานกลาง</div>
                       </div>
                       <div className="p-2 rounded-lg bg-white border border-[#EFEAE1]">
                         <div className="font-bold text-[#DC2626]">≥ 19 คะแนน</div>
-                        <div className="text-[11px] text-[#666]">มาก</div>
+                        <div className="text-[10px] text-[#666]">มาก</div>
                       </div>
                     </div>
                   </div>
 
-                  {/* 8Q Table */}
                   <div className="space-y-1.5">
                     <p className="font-bold text-[#245238]">4. เกณฑ์แบบสำรวจความเสี่ยงต่อตนเอง (8Q):</p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-center">
                       <div className="p-2 rounded-lg bg-white border border-[#EFEAE1]">
                         <div className="font-bold text-[#5C4D20]">1–8 คะแนน</div>
-                        <div className="text-[11px] text-[#666]">กลุ่มเสี่ยงระดับน้อย</div>
+                        <div className="text-[10px] text-[#666]">กลุ่มเสี่ยงระดับน้อย</div>
                       </div>
                       <div className="p-2 rounded-lg bg-white border border-[#EFEAE1]">
                         <div className="font-bold text-[#B45309]">9–16 คะแนน</div>
-                        <div className="text-[11px] text-[#666]">กลุ่มเสี่ยงระดับปานกลาง</div>
+                        <div className="text-[10px] text-[#666]">กลุ่มเสี่ยงระดับปานกลาง</div>
                       </div>
                       <div className="p-2 rounded-lg bg-white border border-[#EFEAE1]">
                         <div className="font-bold text-[#DC2626]">≥ 17 คะแนน</div>
-                        <div className="text-[11px] text-[#666]">กลุ่มเสี่ยงระดับรุนแรง</div>
+                        <div className="text-[10px] text-[#666]">กลุ่มเสี่ยงระดับรุนแรง</div>
                       </div>
                     </div>
                   </div>
@@ -1625,34 +1571,32 @@ export default function AssessmentPage() {
               </div>
             </div>
 
-            {/* 5. JAIDEE CARE FOLLOWUP (ฝากข้อความให้พี่ ๆ ผู้ดูแลติดต่อกลับ) */}
+            {/* 5. JAIDEE CARE FOLLOWUP */}
             {(totalScoreST5 >= 8 || totalScore9Q >= 7 || totalScore8Q >= 1 || careFollowupOpen) && (
-              <div className="bg-white/95 rounded-3xl p-6 sm:p-7 border border-[#F3D1D8] shadow-xs space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <h4 className="text-sm sm:text-base font-bold text-[#8C1D2F] flex items-center gap-2">
-                      <Heart size={16} className="text-[#C53030]" />
-                      <span>ฝากข้อความให้พี่ ๆ ผู้ดูแล ใจดี (JaiDee Care) ติดต่อกลับ</span>
-                    </h4>
-                    <p className="text-xs text-[#7A7A7A]">
-                      พื้นที่ปลอดภัยสำหรับเล่าความรู้สึก ข้อมูลนี้จะส่งถึงพี่ ๆ ผู้ดูแลเพื่อช่วยเหลือและอยู่เคียงข้างคุณ (ไม่บังคับ ปลอดภัย 100%)
-                    </p>
-                  </div>
+              <div className="bg-white/95 rounded-3xl p-4 sm:p-6 border border-[#F3D1D8] shadow-xs space-y-3.5">
+                <div className="space-y-0.5">
+                  <h4 className="text-xs sm:text-sm font-bold text-[#8C1D2F] flex items-center gap-2">
+                    <Heart size={15} className="text-[#C53030]" />
+                    <span>ฝากข้อความให้พี่ ๆ ผู้ดูแล ใจดี (JaiDee Care) ติดต่อกลับ</span>
+                  </h4>
+                  <p className="text-[11px] sm:text-xs text-[#7A7A7A]">
+                    พื้นที่ปลอดภัยสำหรับเล่าความรู้สึก ข้อมูลนี้จะส่งถึงพี่ ๆ ผู้ดูแลเพื่อช่วยเหลือและอยู่เคียงข้างคุณ (ไม่บังคับ ปลอดภัย 100%)
+                  </p>
                 </div>
 
                 {submittedTicket ? (
-                  <div className="p-5 rounded-2xl bg-[#E2F2E9] border border-[#B8DCC8] text-[#1B432E] space-y-2 text-center">
-                    <CheckCircle2 size={28} className="mx-auto text-[#2F6B4A]" />
-                    <h5 className="font-semibold text-sm">ส่งข้อมูลถึงพี่ ๆ เรียบร้อยแล้ว 🌱</h5>
-                    <p className="text-xs text-[#2C6244] leading-relaxed">
+                  <div className="p-4 sm:p-5 rounded-2xl bg-[#E2F2E9] border border-[#B8DCC8] text-[#1B432E] space-y-2 text-center">
+                    <CheckCircle2 size={24} className="mx-auto text-[#2F6B4A]" />
+                    <h5 className="font-semibold text-xs sm:text-sm">ส่งข้อมูลถึงพี่ ๆ เรียบร้อยแล้ว 🌱</h5>
+                    <p className="text-[11px] sm:text-xs text-[#2C6244] leading-relaxed">
                       รหัสเคสของคุณคือ: <strong>{submittedTicket}</strong> พี่ ๆ จะติดต่อกลับไปอย่างอบอุ่นตามช่วงเวลาที่คุณสะดวกนะ
                     </p>
                   </div>
                 ) : (
-                  <form onSubmit={handleFollowupSubmit} className="space-y-3.5 pt-1">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <form onSubmit={handleFollowupSubmit} className="space-y-3 pt-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-[#444]">
+                        <label className="text-[11px] sm:text-xs font-medium text-[#444]">
                           ชื่อ หรือ ชื่อเล่น <span className="text-[#E53E3E]">*</span>
                         </label>
                         <input
@@ -1661,18 +1605,18 @@ export default function AssessmentPage() {
                           placeholder="เช่น น้องใจดี, น้องมิน"
                           value={studentName}
                           onChange={(e) => setStudentName(e.target.value)}
-                          className="w-full px-3.5 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs focus:outline-none focus:border-[#779988]"
+                          className="w-full px-3 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs focus:outline-none focus:border-[#779988]"
                         />
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-[#444]">
+                        <label className="text-[11px] sm:text-xs font-medium text-[#444]">
                           ระดับชั้น <span className="text-[#E53E3E]">*</span>
                         </label>
                         <select
                           value={gradeLevel}
                           onChange={(e) => setGradeLevel(e.target.value)}
-                          className="w-full px-3.5 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs text-[#333] focus:outline-none focus:border-[#779988]"
+                          className="w-full px-3 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs text-[#333] focus:outline-none focus:border-[#779988]"
                         >
                           <optgroup label="มัธยมศึกษา">
                             <option value="มัธยมศึกษาปีที่ 1 (ม.1)">มัธยมศึกษาปีที่ 1 (ม.1)</option>
@@ -1690,7 +1634,7 @@ export default function AssessmentPage() {
                       </div>
 
                       <div className="space-y-1 sm:col-span-2">
-                        <label className="text-xs font-medium text-[#444]">
+                        <label className="text-[11px] sm:text-xs font-medium text-[#444]">
                           เบอร์โทร หรือ Line ID สำหรับติดต่อกลับ <span className="text-[#E53E3E]">*</span>
                         </label>
                         <input
@@ -1699,12 +1643,12 @@ export default function AssessmentPage() {
                           placeholder="เช่น 08X-XXX-XXXX หรือ Line ID"
                           value={contact}
                           onChange={(e) => setContact(e.target.value)}
-                          className="w-full px-3.5 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs focus:outline-none focus:border-[#779988]"
+                          className="w-full px-3 py-2 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs focus:outline-none focus:border-[#779988]"
                         />
                       </div>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-[#FFFDF8] border border-[#E8DFC9] flex items-start gap-2">
+                    <div className="p-2.5 rounded-xl bg-[#FFFDF8] border border-[#E8DFC9] flex items-start gap-2">
                       <input
                         type="checkbox"
                         id="final-care-consent"
@@ -1713,8 +1657,8 @@ export default function AssessmentPage() {
                         onChange={(e) => setConsentGiven(e.target.checked)}
                         className="mt-0.5 accent-[#2F6B4A]"
                       />
-                      <label htmlFor="final-care-consent" className="text-xs text-[#555] leading-relaxed cursor-pointer select-none">
-                        ยินยอมให้ <strong>พี่ ๆ ผู้ดูแล ใจดี (JaiDee Care)</strong> บันทึกผลประเมินและติดต่อกลับอย่างเป็นกันเองและปลอดภัย
+                      <label htmlFor="final-care-consent" className="text-[11px] sm:text-xs text-[#555] leading-relaxed cursor-pointer select-none">
+                        ยินยอมให้ <strong>พี่ ๆ ผู้ดูแล ใจดี (JaiDee Care)</strong> บันทึกผลประเมินและติดต่อกลับอย่างปลอดภัย
                       </label>
                     </div>
 
@@ -1722,7 +1666,7 @@ export default function AssessmentPage() {
                       <button
                         type="submit"
                         disabled={submittingFollowup || !consentGiven}
-                        className="px-6 py-2.5 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1B432E] font-medium text-xs flex items-center gap-2 shadow-xs transition-all disabled:opacity-50 cursor-pointer"
+                        className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1B432E] font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-50 cursor-pointer"
                       >
                         <Send size={14} />
                         <span>{submittingFollowup ? "กำลังส่ง..." : "ส่งข้อมูลให้พี่ ๆ ดูแลใจ"}</span>
@@ -1734,27 +1678,27 @@ export default function AssessmentPage() {
             )}
 
             {/* 6. BOTTOM ACTIONS */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-[#F0ECE1]">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-3 border-t border-[#F0ECE1]">
               <button
                 onClick={handleRestart}
                 className="inline-flex items-center gap-1.5 text-xs text-[#7A7A7A] hover:text-[#333] transition-colors py-1 cursor-pointer"
               >
-                <RotateCcw size={14} />
+                <RotateCcw size={13} />
                 <span>ทำแบบประเมินอีกครั้ง</span>
               </button>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
                 <a
                   href="tel:1323"
-                  className="inline-flex items-center gap-1.5 text-xs text-[#DC2626] font-medium hover:underline"
+                  className="inline-flex items-center gap-1 text-[11px] sm:text-xs text-[#DC2626] font-medium hover:underline"
                 >
-                  <PhoneCall size={13} />
-                  <span>สายด่วนสุขภาพจิต 1323 (โทรฟรี)</span>
+                  <PhoneCall size={12} />
+                  <span>สายด่วน 1323 (โทรฟรี)</span>
                 </a>
 
                 <Link
                   href="/"
-                  className="px-5 py-2 rounded-full bg-[#E2F2E9] text-[#1B432E] text-xs font-medium hover:bg-[#D0EBDC]"
+                  className="px-4 py-1.5 rounded-full bg-[#E2F2E9] text-[#1B432E] text-xs font-medium hover:bg-[#D0EBDC]"
                 >
                   กลับหน้าหลัก
                 </Link>
