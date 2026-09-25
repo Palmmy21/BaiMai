@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Feather, Heart, Wind, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
+import { Feather, Wind, Sparkles, ShieldCheck, ArrowRight, PhoneCall } from "lucide-react";
+import MoodSection from "@/components/MoodSection";
+import VisitorStats from "@/components/VisitorStats";
 
 export default function Home() {
   return (
@@ -40,53 +41,15 @@ export default function Home() {
         </motion.div>
 
         {/* ==============================================================
-            VISUAL ILLUSTRATION: Paper -> Breeze -> Falling Leaves
+            MOOD CHECK SECTION (แทนที่ภาพประกอบเดิมตามที่ผู้ใช้กำหนด)
            ============================================================== */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="relative max-w-md mx-auto h-36 flex items-center justify-center select-none"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="pt-2 pb-2"
         >
-          {/* Subtle soft glow aura */}
-          <div className="absolute w-52 h-52 rounded-full bg-gradient-to-tr from-[#B8DCC8]/30 via-[#C7DDF2]/30 to-[#F7E6B5]/25 filter blur-2xl pointer-events-none" />
-
-          {/* Interactive visual cycle */}
-          <div className="flex items-center justify-center gap-6 sm:gap-8 z-10">
-            {/* Step 1: Paper note */}
-            <motion.div
-              animate={{ y: [0, -5, 0], rotate: [-4, -2, -4] }}
-              transition={{ repeat: Infinity, duration: 3.2, ease: "easeInOut" }}
-              className="flex flex-col items-center gap-1.5"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-white border border-[#E8DFC9] shadow-sm flex items-center justify-center text-2xl">
-                📝
-              </div>
-              <span className="text-[11px] text-[#888]">เขียนระบาย</span>
-            </motion.div>
-
-            {/* Step 2: Gentle Wind breeze */}
-            <motion.div
-              animate={{ x: [0, 6, 0], opacity: [0.6, 1, 0.6] }}
-              transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-              className="text-[#98B8A0] flex flex-col items-center gap-1"
-            >
-              <span className="text-xl">〰️🍃〰️</span>
-              <span className="text-[10px] text-[#A5A5A5]">สายลมหอบพา</span>
-            </motion.div>
-
-            {/* Step 3: Falling leaves drifting */}
-            <motion.div
-              animate={{ y: [0, 6, 0], rotate: [8, 16, 8] }}
-              transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-              className="flex flex-col items-center gap-1.5"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-[#E2F2E9] border border-[#B8DCC8] shadow-sm flex items-center justify-center text-2xl">
-                🍂
-              </div>
-              <span className="text-[11px] text-[#2F6B4A] font-medium">ร่วงหล่นสู่ความสงบ</span>
-            </motion.div>
-          </div>
+          <MoodSection showCardContainer={true} />
         </motion.div>
 
         {/* CTA Buttons */}
@@ -98,7 +61,7 @@ export default function Home() {
         >
           <Link
             href="/release"
-            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1A442D] font-medium text-base shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 group"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#B8DCC8] hover:bg-[#A3CEB5] text-[#1A442D] font-medium text-base shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 group cursor-pointer"
           >
             <span>✍️ ปล่อยความรู้สึก</span>
             <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
@@ -106,7 +69,7 @@ export default function Home() {
 
           <Link
             href="/assessment"
-            className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#FAEBEE] hover:bg-[#F3D1D8] text-[#8C243B] font-medium text-base border border-[#F3D1D8] shadow-xs hover:shadow-sm transition-all flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#FAEBEE] hover:bg-[#F3D1D8] text-[#8C243B] font-medium text-base border border-[#F3D1D8] shadow-xs hover:shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>🌱 เช็กสุขภาพใจ</span>
           </Link>
@@ -148,25 +111,7 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* Card 2: เช็กอารมณ์ */}
-          <Link
-            href="/mood"
-            className="group p-6 rounded-2xl bg-white border border-[#EFEAE1] hover:border-[#F7E6B5] shadow-xs hover:shadow-md transition-all flex items-start gap-4"
-          >
-            <div className="w-12 h-12 rounded-xl bg-[#FDF7E5] text-[#5C4D20] flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">
-              ❤️
-            </div>
-            <div className="space-y-1">
-              <h3 className="font-semibold text-base text-[#333] group-hover:text-[#5C4D20] transition-colors">
-                เช็กอารมณ์ประจำวัน
-              </h3>
-              <p className="text-xs text-[#7A7A7A] leading-relaxed">
-                สำรวจว่าวันนี้รู้สึกอย่างไร รับคำแนะนำสั้น ๆ เพื่อช่วยปรับอารมณ์ให้เบาสบายขึ้น
-              </p>
-            </div>
-          </Link>
-
-          {/* Card 3: ฝึกหายใจ */}
+          {/* Card 2: ฝึกหายใจ */}
           <Link
             href="/breathe"
             className="group p-6 rounded-2xl bg-white border border-[#EFEAE1] hover:border-[#C7DDF2] shadow-xs hover:shadow-md transition-all flex items-start gap-4"
@@ -184,7 +129,7 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* Card 4: ประเมินสุขภาพจิต */}
+          {/* Card 3: ประเมินสุขภาพจิต */}
           <Link
             href="/assessment"
             className="group p-6 rounded-2xl bg-white border border-[#EFEAE1] hover:border-[#F3D1D8] shadow-xs hover:shadow-md transition-all flex items-start gap-4"
@@ -197,12 +142,35 @@ export default function Home() {
                 ลองเช็กใจกันหน่อย
               </h3>
               <p className="text-xs text-[#7A7A7A] leading-relaxed">
-                แบบสำรวจสุขภาพใจตามเกณฑ์มาตรฐาน (2Q / 9Q / 8Q) เพื่อสังเกตสภาวะอารมณ์และดูแลตนเองอย่างปลอดภัย
+                แบบประเมินความเครียดและสุขภาพใจตามเกณฑ์มาตรฐาน (ST-5 / 2Q / 9Q / 8Q) เพื่อสังเกตสภาวะอารมณ์และดูแลตนเองอย่างปลอดภัย
+              </p>
+            </div>
+          </Link>
+
+          {/* Card 4: ขอความช่วยเหลือ */}
+          <Link
+            href="/help"
+            className="group p-6 rounded-2xl bg-white border border-[#EFEAE1] hover:border-[#FED7D7] shadow-xs hover:shadow-md transition-all flex items-start gap-4"
+          >
+            <div className="w-12 h-12 rounded-xl bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">
+              ☎️
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-semibold text-base text-[#333] group-hover:text-[#DC2626] transition-colors">
+                ขอความช่วยเหลือ & สายด่วน
+              </h3>
+              <p className="text-xs text-[#7A7A7A] leading-relaxed">
+                สายด่วนสุขภาพจิต 1323 ตลอด 24 ชม. และช่องทางช่วยเหลือฉุกเฉินเมื่อรู้สึกไม่ไหว
               </p>
             </div>
           </Link>
         </div>
       </section>
+
+      {/* ==============================================================
+          REAL-TIME WEBSITE VISITOR STATS (สถิติการเข้าถึงเว็บ)
+         ============================================================== */}
+      <VisitorStats />
 
       {/* ==============================================================
           SAFETY & PRIVACY CALLOUT

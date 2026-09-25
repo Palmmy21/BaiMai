@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { 
-  Heart, 
   Feather, 
   Wind, 
   ShieldAlert, 
@@ -13,17 +12,16 @@ import {
   VolumeX, 
   ClipboardCheck, 
   Menu, 
-  X,
-  ShieldCheck
+  X, 
+  ShieldCheck 
 } from "lucide-react";
 import { soundManager } from "@/utils/audio";
 
 const NAV_ITEMS = [
   { href: "/", label: "หน้าหลัก", icon: Home },
-  { href: "/assessment", label: "ประเมินสุขภาพจิต", icon: ClipboardCheck, badge: "2Q/9Q/8Q" },
   { href: "/release", label: "ปล่อยความรู้สึก", icon: Feather, highlight: true },
-  { href: "/mood", label: "เช็กอารมณ์", icon: Heart },
   { href: "/breathe", label: "ผ่อนคลาย", icon: Wind },
+  { href: "/assessment", label: "ประเมินสุขภาพจิต", icon: ClipboardCheck, badge: "ST-5/2Q/9Q" },
   { href: "/help", label: "ขอความช่วยเหลือ", icon: ShieldAlert },
 ];
 

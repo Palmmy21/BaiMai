@@ -248,11 +248,17 @@ export default function HelpPage() {
                   onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0DACB] bg-[#FFFDF8] text-xs sm:text-sm text-[#333] focus:outline-none focus:border-[#779988]"
                 >
-                  <option value="มัธยมศึกษาปีที่ 1 (ม.1)">มัธยมศึกษาปีที่ 1 (ม.1)</option>
-                  <option value="มัธยมศึกษาปีที่ 2 (ม.2)">มัธยมศึกษาปีที่ 2 (ม.2)</option>
-                  <option value="มัธยมศึกษาปีที่ 3 (ม.3)">มัธยมศึกษาปีที่ 3 (ม.3)</option>
-                  <option value="มัธยมศึกษาตอนปลาย (ม.4 - ม.6)">มัธยมศึกษาตอนปลาย (ม.4 - ม.6)</option>
-                  <option value="ประถมศึกษาตอนปลาย">ประถมศึกษาตอนปลาย</option>
+                  <optgroup label="มัธยมศึกษา">
+                    <option value="มัธยมศึกษาปีที่ 1 (ม.1)">มัธยมศึกษาปีที่ 1 (ม.1)</option>
+                    <option value="มัธยมศึกษาปีที่ 2 (ม.2)">มัธยมศึกษาปีที่ 2 (ม.2)</option>
+                    <option value="มัธยมศึกษาปีที่ 3 (ม.3)">มัธยมศึกษาปีที่ 3 (ม.3)</option>
+                    <option value="มัธยมศึกษาตอนปลาย (ม.4 - ม.6)">มัธยมศึกษาตอนปลาย (ม.4 - ม.6)</option>
+                  </optgroup>
+                  <optgroup label="ประถมศึกษาตอนปลาย">
+                    <option value="ประถมศึกษาปีที่ 4 (ป.4)">ประถมศึกษาปีที่ 4 (ป.4)</option>
+                    <option value="ประถมศึกษาปีที่ 5 (ป.5)">ประถมศึกษาปีที่ 5 (ป.5)</option>
+                    <option value="ประถมศึกษาปีที่ 6 (ป.6)">ประถมศึกษาปีที่ 6 (ป.6)</option>
+                  </optgroup>
                   <option value="อื่น ๆ">อื่น ๆ</option>
                 </select>
               </div>

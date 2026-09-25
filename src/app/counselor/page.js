@@ -642,6 +642,10 @@ export default function CounselorPortalPage() {
                             <AlertTriangle size={11} />
                             <span>เสี่ยงทำร้ายตนเอง ({item.score8Q})</span>
                           </span>
+                        ) : item.scoreST5 > 0 ? (
+                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#FDF7E5] text-[#855B14] border border-[#F7E6B5]">
+                            ST-5: {item.scoreST5}/15
+                          </span>
                         ) : (
                           <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#FAEBEE] text-[#8C243B]">
                             9Q: {item.score9Q} คะแนน
@@ -709,7 +713,13 @@ export default function CounselorPortalPage() {
               </div>
 
               {/* Assessment Scores */}
-              <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className={`grid ${selectedCase.scoreST5 !== undefined && selectedCase.scoreST5 > 0 ? "grid-cols-3" : "grid-cols-2"} gap-2 text-xs`}>
+                {selectedCase.scoreST5 !== undefined && selectedCase.scoreST5 > 0 && (
+                  <div className="p-3 rounded-xl bg-[#FDF7E5]/70 border border-[#F7E6B5]">
+                    <span className="text-[#855B14] font-medium">ความเครียด (ST-5)</span>
+                    <p className="text-lg font-bold text-[#5C4D20]">{selectedCase.scoreST5} / 15</p>
+                  </div>
+                )}
                 <div className="p-3 rounded-xl bg-[#FAEBEE]/50 border border-[#F3D1D8]">
                   <span className="text-[#8C243B] font-medium">คะแนนซึมเศร้า (9Q)</span>
                   <p className="text-lg font-bold text-[#701E2D]">{selectedCase.score9Q} คะแนน</p>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Heart, Feather, ClipboardCheck, PhoneCall } from "lucide-react";
+import { Home, Wind, Feather, ClipboardCheck, PhoneCall } from "lucide-react";
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -21,15 +21,15 @@ export default function BottomNav() {
           <span className="text-[11px]">หน้าหลัก</span>
         </Link>
 
-        {/* 2. Mood */}
+        {/* 2. Breathe */}
         <Link
-          href="/mood"
+          href="/breathe"
           className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition-all ${
-            pathname === "/mood" ? "text-[#D97706] font-medium" : "text-[#7A7A7A]"
+            pathname === "/breathe" ? "text-[#2B6CB0] font-medium" : "text-[#7A7A7A]"
           }`}
         >
-          <Heart size={19} className={pathname === "/mood" ? "stroke-[2.5]" : "stroke-[1.8]"} />
-          <span className="text-[11px]">อารมณ์</span>
+          <Wind size={19} className={pathname === "/breathe" ? "stroke-[2.5]" : "stroke-[1.8]"} />
+          <span className="text-[11px]">ผ่อนคลาย</span>
         </Link>
 
         {/* 3. Release Button - Prominent Center Floating */}

@@ -98,7 +98,7 @@ export default function RootLayout({ children }) {
               <span>•</span>
               <Link href="/help" className="hover:underline text-[#DC2626]">สายด่วน 1323</Link>
               <span>•</span>
-              <Link href="/assessment" className="hover:underline">เช็กใจตัวเอง (2Q/9Q/8Q)</Link>
+              <Link href="/assessment" className="hover:underline">เช็กใจตัวเอง (ST-5 / 2Q / 9Q)</Link>
               <span>•</span>
               <Link href="/counselor" className="hover:underline text-[#245238] font-medium">ระบบดูแลน้อง ๆ (สำหรับพี่ ๆ ผู้ดูแล)</Link>
             </div>

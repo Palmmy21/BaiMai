@@ -211,6 +211,8 @@ export async function POST(request) {
       severity9Q,
       severity8Q,
       answers2Q,
+      scoreST5,
+      severityST5,
     } = body;
 
     const studentIdentifier = studentId?.trim() || name?.trim();
@@ -238,6 +240,8 @@ export async function POST(request) {
       score8Q: Number(score8Q ?? 0),
       severity9Q: severity9Q || "normal",
       severity8Q: severity8Q || "none",
+      scoreST5: scoreST5 !== undefined ? Number(scoreST5) : null,
+      severityST5: severityST5 || null,
       answers2Q: answers2Q || {},
       status: "pending", // pending | contacted | in_counseling | completed
       counselorNotes: [],
